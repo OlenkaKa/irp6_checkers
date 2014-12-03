@@ -64,11 +64,11 @@ int main(int argc, char **argv)
     ///std_msgs::String msg;
 	irp6_checkers::Chessboard msg;
 	irp6_checkers::Checker data;
-	data.color=1;
+	data.type=1;
 	data.x=2;
 	data.y=3;
 	msg.Chessboard.push_back(data);
-	data.color=4;
+	data.type=4;
 	data.x=5;
 	data.y=6;
 	msg.Chessboard.push_back(data);

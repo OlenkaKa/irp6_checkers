@@ -13,14 +13,14 @@ void chatterCallback(const std_msgs::String::ConstPtr& msg)
 
 void myChatterCallback(const irp6_checkers::Checker& msg)
 {
-  ROS_INFO("I heard: %d %d %d", msg.color, msg.x, msg.y);
+  ROS_INFO("I heard: %d %d %d", msg.type, msg.x, msg.y);
 }
 
 void myChatterCallback2(const irp6_checkers::Chessboard::ConstPtr& msg)
 {
 	ROS_INFO("----> Start of message.");
 	for(int i=0; i<msg->Chessboard.size(); ++i)
-		ROS_INFO("I heard: %d %d %d", msg->Chessboard[i].color, msg->Chessboard[i].x, msg->Chessboard[i].y);
+		ROS_INFO("I heard: %d %d %d", msg->Chessboard[i].type, msg->Chessboard[i].x, msg->Chessboard[i].y);
 	ROS_INFO("----> End of message.");
 }
 

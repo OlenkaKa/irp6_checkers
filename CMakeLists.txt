@@ -52,6 +52,7 @@ add_message_files(
   ImageData.msg
   Checker.msg
   Chessboard.msg
+  ChessboardChange.msg
 )
 
 ## Generate services in the 'srv' folder
@@ -111,12 +112,14 @@ include_directories(
 # add_executable(irp6_checkers_node src/irp6_checkers_node.cpp)
 add_executable(test_pub src/test_pub.cpp)
 add_executable(test_sub src/test_sub.cpp)
+add_executable(image_interpreter src/ImageInterpreter.cpp)
 
 ## Add cmake target dependencies of the executable/library
 ## as an example, message headers may need to be generated before nodes
 # add_dependencies(irp6_checkers_node irp6_checkers_generate_messages_cpp)
 add_dependencies(test_pub irp6_checkers_generate_messages_cpp)
 add_dependencies(test_sub irp6_checkers_generate_messages_cpp)
+add_dependencies(image_interpreter irp6_checkers_generate_messages_cpp)
 
 ## Specify libraries to link a library or executable target against
 # target_link_libraries(irp6_checkers_node
@@ -124,6 +127,7 @@ add_dependencies(test_sub irp6_checkers_generate_messages_cpp)
 # )
 target_link_libraries(test_pub ${catkin_LIBRARIES})
 target_link_libraries(test_sub ${catkin_LIBRARIES})
+target_link_libraries(image_interpreter ${catkin_LIBRARIES})
 
 #############
 ## Install ##
