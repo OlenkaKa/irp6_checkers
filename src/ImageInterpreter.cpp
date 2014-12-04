@@ -1,6 +1,7 @@
 #include "ros/ros.h"
 #include "irp6_checkers/ImageData.h"
 #include "irp6_checkers/Chessboard.h"
+#include "Checkers.hpp"
 #include <iostream>
 
 using namespace std;
@@ -65,6 +66,7 @@ int main(int argc, char **argv)
 {
 	ros::init(argc, argv, "image_interpreter");
 	ros::NodeHandle _nh;
+	Checkers::Chessboard b;
 	ImageInterpreter interpreter;
 	ros::spin();
 	return 0;

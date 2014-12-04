@@ -95,11 +95,14 @@ catkin_package(
 ###########
 ## Build ##
 ###########
+add_definitions("-std=c++11")
 
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
 # include_directories(include)
 include_directories(
+  include
+  include/Checkers
   ${catkin_INCLUDE_DIRS}
 )
 
@@ -107,6 +110,15 @@ include_directories(
 # add_library(irp6_checkers
 #   src/${PROJECT_NAME}/irp6_checkers.cpp
 # )
+add_library(checkers 
+  src/Checkers/AI.cpp
+  src/Checkers/Basics.cpp
+  src/Checkers/Chessboard.cpp
+  src/Checkers/Move.cpp
+  src/Checkers/NotTakingMove.cpp
+  src/Checkers/Position.cpp
+  src/Checkers/TakingMove.cpp
+)
 
 ## Declare a cpp executable
 # add_executable(irp6_checkers_node src/irp6_checkers_node.cpp)
@@ -127,8 +139,8 @@ add_dependencies(image_interpreter irp6_checkers_generate_messages_cpp)
 # )
 target_link_libraries(test_pub ${catkin_LIBRARIES})
 target_link_libraries(test_sub ${catkin_LIBRARIES})
-target_link_libraries(image_interpreter ${catkin_LIBRARIES})
-
+target_link_libraries(image_interpreter ${catkin_LIBRARIES} checkers)
+target_link_libraries(checkers ${catkin_LIBRARIES})
 #############
 ## Install ##
 #############
