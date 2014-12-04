@@ -1,10 +1,10 @@
 #----------------------
 # Checkers types
 #----------------------
-int32 PLAYER1_PAWN=0
-int32 PLAYER2_PAWN=1
-int32 PLAYER1_KING=2
-int32 PLAYER2_KING=3
+int32 PAWN_1=0
+int32 PAWN_2=1
+int32 KING_1=2
+int32 KING_2=3
 
 #----------------------
 # Checker info

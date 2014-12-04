@@ -102,7 +102,7 @@ add_definitions("-std=c++11")
 # include_directories(include)
 include_directories(
   include
-  include/Checkers
+  include/checkerslib
   ${catkin_INCLUDE_DIRS}
 )
 
@@ -111,13 +111,13 @@ include_directories(
 #   src/${PROJECT_NAME}/irp6_checkers.cpp
 # )
 add_library(checkers 
-  src/Checkers/AI.cpp
-  src/Checkers/Basics.cpp
-  src/Checkers/Chessboard.cpp
-  src/Checkers/Move.cpp
-  src/Checkers/NotTakingMove.cpp
-  src/Checkers/Position.cpp
-  src/Checkers/TakingMove.cpp
+  src/checkerslib/AI.cpp
+  src/checkerslib/Basics.cpp
+  src/checkerslib/Chessboard.cpp
+  src/checkerslib/Move.cpp
+  src/checkerslib/NotTakingMove.cpp
+  src/checkerslib/Position.cpp
+  src/checkerslib/TakingMove.cpp
 )
 
 ## Declare a cpp executable
@@ -125,13 +125,18 @@ add_library(checkers
 add_executable(test_pub src/test_pub.cpp)
 add_executable(test_sub src/test_sub.cpp)
 add_executable(image_interpreter src/ImageInterpreter.cpp)
+add_executable(chessboard_change_finder src/ChessboardChangeFinder.cpp)
+add_executable(move_determination src/MoveDetermination.cpp)
 
 ## Add cmake target dependencies of the executable/library
 ## as an example, message headers may need to be generated before nodes
 # add_dependencies(irp6_checkers_node irp6_checkers_generate_messages_cpp)
 add_dependencies(test_pub irp6_checkers_generate_messages_cpp)
 add_dependencies(test_sub irp6_checkers_generate_messages_cpp)
+add_dependencies(checkers irp6_checkers_generate_messages_cpp)
 add_dependencies(image_interpreter irp6_checkers_generate_messages_cpp)
+add_dependencies(chessboard_change_finder irp6_checkers_generate_messages_cpp)
+add_dependencies(move_determination irp6_checkers_generate_messages_cpp)
 
 ## Specify libraries to link a library or executable target against
 # target_link_libraries(irp6_checkers_node
@@ -139,8 +144,10 @@ add_dependencies(image_interpreter irp6_checkers_generate_messages_cpp)
 # )
 target_link_libraries(test_pub ${catkin_LIBRARIES})
 target_link_libraries(test_sub ${catkin_LIBRARIES})
-target_link_libraries(image_interpreter ${catkin_LIBRARIES} checkers)
 target_link_libraries(checkers ${catkin_LIBRARIES})
+target_link_libraries(image_interpreter ${catkin_LIBRARIES})
+target_link_libraries(chessboard_change_finder ${catkin_LIBRARIES} checkers)
+target_link_libraries(move_determination ${catkin_LIBRARIES} checkers)
 #############
 ## Install ##
 #############

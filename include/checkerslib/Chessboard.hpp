@@ -21,6 +21,7 @@ public:
 
 	Chessboard();
 	//Chessboard(struktura od rosa);
+	void addChecker(const Position& pos, FieldValue val);
 	void initGame();
 	void clear();
 	static FieldColor getFieldColor(const Position& pos);

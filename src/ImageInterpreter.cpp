@@ -1,7 +1,6 @@
 #include "ros/ros.h"
 #include "irp6_checkers/ImageData.h"
 #include "irp6_checkers/Chessboard.h"
-#include "Checkers.hpp"
 #include <iostream>
 
 using namespace std;
@@ -13,18 +12,17 @@ public:
 	void callback(const irp6_checkers::ImageData& msg);
 private:
 	ros::NodeHandle _nh;
-	ros::Subscriber _image_data;
-	ros::Publisher _chessboard;
+	ros::Publisher _chessboard_pub;
+	ros::Subscriber _image_data_sub;
 }; 
 
 ImageInterpreter::ImageInterpreter()
 {
-	_chessboard = _nh.advertise<irp6_checkers::Chessboard>("chessboard", 1000);
-	_image_data = _nh.subscribe("image_data", 1000, &ImageInterpreter::callback, this);
+	_chessboard_pub = _nh.advertise<irp6_checkers::Chessboard>("chessboard", 1000);
+	_image_data_sub = _nh.subscribe("image_data", 1000, &ImageInterpreter::callback, this);
 	ROS_INFO("INIT2");
 }
 
-//void ImageInterpreter::callback(const irp6_checkers::ImageData::ConstPtr& msg)
 void ImageInterpreter::callback(const irp6_checkers::ImageData& msg)
 {
 	ROS_INFO("[ImageInterpreter] ------> New data received.");
@@ -56,7 +54,7 @@ void ImageInterpreter::callback(const irp6_checkers::ImageData& msg)
 	data.x=5;
 	data.y=6;
 	chessboard.Chessboard.push_back(data);
-	_chessboard.publish(chessboard);
+	_chessboard_pub.publish(chessboard);
 	ros::spinOnce();
 	
 	ROS_INFO("[ImageInterpreter] <------ End of data.");
@@ -65,16 +63,7 @@ void ImageInterpreter::callback(const irp6_checkers::ImageData& msg)
 int main(int argc, char **argv)
 {
 	ros::init(argc, argv, "image_interpreter");
-	ros::NodeHandle _nh;
-	Checkers::Chessboard b;
 	ImageInterpreter interpreter;
 	ros::spin();
 	return 0;
-  /*
-  ros::init(argc, argv, "image_interpreter");
-  ros::NodeHandle n;
-  ros::Subscriber sub = n.subscribe("image_data", 1000, callback);
-  ros::spin();
-  return 0;
-  */
 }

@@ -6,6 +6,14 @@ Chessboard::Chessboard()
 {
 }
 
+void Chessboard::addChecker(const Position& pos, FieldValue val)
+{
+	if(checkPlayer(val, PLAYER_1))
+		_player_1.insert(std::make_pair(pos,val));
+	else
+		_player_2.insert(std::make_pair(pos,val));
+}
+
 void Chessboard::initGame()
 {
 	// set pawns for player 1
@@ -194,7 +202,7 @@ bool Chessboard::move(const Move_Ptr& move)
 	auto next_pos = move->getNextPos();
 	auto taking_pos = move->getTakingPos();
 
-	// TODO: sprawdzenie poprawnoœci
+	// TODO: sprawdzenie poprawnoï¿½ci
 	auto end_it = taking_pos.end();
 	for(auto it=taking_pos.begin(); it!=end_it;)
 	{
@@ -243,7 +251,7 @@ bool Chessboard::move(const Move_Ptr& move, Chessboard& output) const
 	auto next_pos = move->getNextPos();
 	auto taking_pos = move->getTakingPos();
 
-	// TODO: sprawdzenie poprawnoœci
+	// TODO: sprawdzenie poprawnoï¿½ci
 	auto end_it = taking_pos.end();
 	for(auto it=taking_pos.begin(); it!=end_it;)
 	{

@@ -21,4 +21,8 @@
 	
 	<node name="image_interpreter" pkg="irp6_checkers" type="image_interpreter" output="screen"/>
 	
+	<node name="chessboard_change_finder" pkg="irp6_checkers" type="chessboard_change_finder" output="screen"/>
+
+	<node name="move_determination" pkg="irp6_checkers" type="move_determination" output="screen"/>
+	
 </launch>
