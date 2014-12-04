@@ -6,6 +6,31 @@ Chessboard::Chessboard()
 {
 }
 
+Chessboard::Chessboard(const irp6_checkers::Chessboard& data)
+{
+	std::vector<irp6_checkers::Checker>::const_iterator end_it = data.Chessboard.end();
+		for(std::vector<irp6_checkers::Checker>::const_iterator it = data.Chessboard.begin(); it != end_it; ++it)
+		{
+			Checkers::FieldValue type;
+			switch((*it).type)
+			{
+			case irp6_checkers::Checker::PAWN_1:
+				type = Checkers::PAWN_1;
+				break;
+			case irp6_checkers::Checker::PAWN_2:
+				type = Checkers::PAWN_2;
+				break;
+			case irp6_checkers::Checker::KING_1:
+				type = Checkers::KING_1;
+				break;
+			case irp6_checkers::Checker::KING_2:
+				type = Checkers::KING_2;
+				break;
+			}
+			addChecker(Checkers::Position((*it).x,(*it).y), type);
+		}
+}
+
 void Chessboard::addChecker(const Position& pos, FieldValue val)
 {
 	if(checkPlayer(val, PLAYER_1))

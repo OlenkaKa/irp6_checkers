@@ -5,6 +5,8 @@
 #include "TakingMove.hpp"
 #include "NotTakingMove.hpp"
 
+#include "irp6_checkers/Chessboard.h"
+
 #include <map>
 #include <vector>
 #include <iostream>
@@ -20,7 +22,7 @@ public:
 	static const int PLAYER_LINES_AT_START;
 
 	Chessboard();
-	//Chessboard(struktura od rosa);
+	Chessboard(const irp6_checkers::Chessboard& data);
 	void addChecker(const Position& pos, FieldValue val);
 	void initGame();
 	void clear();
