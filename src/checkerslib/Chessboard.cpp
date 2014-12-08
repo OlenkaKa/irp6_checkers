@@ -1,4 +1,5 @@
 #include "Chessboard.hpp"
+#include <iostream>
 
 namespace Checkers {
 
@@ -9,26 +10,31 @@ Chessboard::Chessboard()
 Chessboard::Chessboard(const irp6_checkers::Chessboard& data)
 {
 	std::vector<irp6_checkers::Checker>::const_iterator end_it = data.Chessboard.end();
-		for(std::vector<irp6_checkers::Checker>::const_iterator it = data.Chessboard.begin(); it != end_it; ++it)
+	for(std::vector<irp6_checkers::Checker>::const_iterator it = data.Chessboard.begin(); it != end_it; ++it)
+	{
+			std::cout<<"pos pionka: "<<(*it).x<<" "<<(*it).y<<std::endl;
+		Checkers::FieldValue type;
+		switch((*it).type)
 		{
-			Checkers::FieldValue type;
-			switch((*it).type)
-			{
-			case irp6_checkers::Checker::PAWN_1:
-				type = Checkers::PAWN_1;
-				break;
-			case irp6_checkers::Checker::PAWN_2:
-				type = Checkers::PAWN_2;
-				break;
-			case irp6_checkers::Checker::KING_1:
-				type = Checkers::KING_1;
-				break;
-			case irp6_checkers::Checker::KING_2:
-				type = Checkers::KING_2;
-				break;
-			}
-			addChecker(Checkers::Position((*it).x,(*it).y), type);
+		case irp6_checkers::Checker::PAWN_1:
+			type = Checkers::PAWN_1;
+			break;
+		case irp6_checkers::Checker::PAWN_2:
+			type = Checkers::PAWN_2;
+			break;
+		case irp6_checkers::Checker::KING_1:
+			type = Checkers::KING_1;
+			break;
+		case irp6_checkers::Checker::KING_2:
+			type = Checkers::KING_2;
+			break;
+		default:
+			std::cout<<"Nie ma\n";
 		}
+		addChecker(Checkers::Position((*it).x,(*it).y), type);
+	}
+		std::cout<<"!!!!!!!!!! "<<_player_1.size()<<" "<<_player_2.size()<<std::endl;
+		std::cout<<(*this);
 }
 
 void Chessboard::addChecker(const Position& pos, FieldValue val)
@@ -69,8 +75,8 @@ FieldColor Chessboard::getFieldColor(const Position& c)
 
 FieldValue Chessboard::getFieldValue(const Position& c) const
 {
-	if(getFieldColor(c) == BLACK)
-	{
+	//if(getFieldColor(c) == BLACK)
+	//{
 		std::map<Position, FieldValue>::const_iterator it = _player_1.find(c);
 		if(it != _player_1.end())
 			return it->second;
@@ -78,7 +84,7 @@ FieldValue Chessboard::getFieldValue(const Position& c) const
 		it = _player_2.find(c);
 		if(it != _player_2.end())
 			return it->second;
-	}
+	//}
 	return EMPTY;
 }
 
@@ -361,7 +367,7 @@ void Chessboard::getCheckers(std::vector<Position>& pawns_1, std::vector<Positio
 std::ostream& operator<< (std::ostream &os, const Chessboard& board)
 {
 	Position pos;
-	os<<"    __________"<<std::endl;
+	os<<"   +----------+"<<std::endl;
 	for(int y=board.CHESSBOARD_SIZE-1; y >= 0; --y)
 	{
 		os<<" "<<y<<" | ";
@@ -397,7 +403,7 @@ std::ostream& operator<< (std::ostream &os, const Chessboard& board)
 		}
 		os<<" |"<<std::endl;
 	}
-	os<<"    __________"<<std::endl;
+	os<<"   +----------+"<<std::endl;
 	os<<"     01234567 "<<std::endl;
 	return os;
 	/*

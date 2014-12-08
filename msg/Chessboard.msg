@@ -2,4 +2,4 @@
 # Chessboard info
 #----------------------
 Checker[] Chessboard
-int32 size
+#int32 size

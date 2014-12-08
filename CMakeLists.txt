@@ -47,7 +47,7 @@ find_package(catkin REQUIRED COMPONENTS
 ## Generate messages in the 'msg' folder
 add_message_files(
   FILES
-  ColorCircle.msg
+  ColorPoint.msg
   Point.msg
   ImageData.msg
   Checker.msg
@@ -145,7 +145,7 @@ add_dependencies(move_determination irp6_checkers_generate_messages_cpp)
 target_link_libraries(test_pub ${catkin_LIBRARIES})
 target_link_libraries(test_sub ${catkin_LIBRARIES})
 target_link_libraries(checkers ${catkin_LIBRARIES})
-target_link_libraries(image_interpreter ${catkin_LIBRARIES})
+target_link_libraries(image_interpreter ${catkin_LIBRARIES} checkers)
 target_link_libraries(chessboard_change_finder ${catkin_LIBRARIES} checkers)
 target_link_libraries(move_determination ${catkin_LIBRARIES} checkers)
 #############

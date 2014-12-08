@@ -1,7 +1,7 @@
 #----------------------
 # Image info
 #----------------------
-ColorCircle[] Circles
-Point[] WhiteFields
-Point MaxChessboardField
-Point MinChessboardField
+int32 WhiteFieldsNum
+ColorPoint[] CheckerFields
+Point MaxCorner
+Point MinCorner
