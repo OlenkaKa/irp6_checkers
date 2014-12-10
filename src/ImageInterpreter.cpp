@@ -9,19 +9,22 @@ using namespace std;
 class ImageInterpreter
 {
 public:
-	ImageInterpreter();
+	ImageInterpreter(double meter_per_pixel);
 	void callback(const irp6_checkers::ImageData& msg);
+	void changeMeterPerPixel(double new_value);
 private:
 	ros::NodeHandle nh_;
 	ros::Publisher chessboardPub_;
 	ros::Subscriber image_dataSub_;
+
+	double meter_per_pixel_;
 }; 
 
-ImageInterpreter::ImageInterpreter()
+ImageInterpreter::ImageInterpreter(double meter_per_pixel) : meter_per_pixel_(meter_per_pixel)
 {
 	chessboardPub_ = nh_.advertise<irp6_checkers::Chessboard>("chessboard", 1000);
 	image_dataSub_ = nh_.subscribe("image_data", 1000, &ImageInterpreter::callback, this);
-	ROS_INFO("INIT2");
+	ROS_INFO("[ImageInterpreter] Initialize");
 }
 
 void ImageInterpreter::callback(const irp6_checkers::ImageData& msg)
@@ -31,8 +34,6 @@ void ImageInterpreter::callback(const irp6_checkers::ImageData& msg)
 		cout<<"Too few white fields: "<<msg.WhiteFieldsNum<<".\n";
 		return;
 	}
-cout<<"x -> "<<msg.MaxCorner.x<<" "<<msg.MinCorner.x<<endl;
-cout<<"y -> "<<msg.MaxCorner.y<<" "<<msg.MinCorner.y<<endl;
 	irp6_checkers::Chessboard chessboard;
 	int width = msg.MaxCorner.x-msg.MinCorner.x;
 	int deltaX = width/8;
@@ -76,48 +77,17 @@ cout<<"y -> "<<msg.MaxCorner.y<<" "<<msg.MinCorner.y<<endl;
 	chessboardPub_.publish(chessboard);
 	ros::spinOnce();
 	ROS_INFO("[ImageInterpreter] <------ End of data.");
+}
 
-	/*
-	ROS_INFO("[ImageInterpreter] ------> New data received.");
-	// TODO
-	ROS_INFO("[ImageInterpreter] Received circles:");
-	int size = msg.Circles.size();
-	for(int i=0; i<size; ++i)
-	{
-		cout<<"Color:\t"<<msg.Circles[i].color<<"; Point:\t["<<msg.Circles[i].x<<", "<<msg.Circles[i].y<<"] \n";
-	}
-	ROS_INFO("[ImageInterpreter] Received fields:");
-	size = msg.WhiteFields.size();
-	for(int i=0; i<size; ++i)
-	{
-		cout<<"Point:\t["<<msg.WhiteFields[i].x<<", "<<msg.WhiteFields[i].y<<"] \n";
-	}
-	cout<<"MAX: "<<msg.MaxChessboardField.x<<", "<<msg.MaxChessboardField.y<<endl;
-	cout<<"MIN: "<<msg.MinChessboardField.x<<", "<<msg.MinChessboardField.y<<endl;
-	
-	
-	ROS_INFO("[ImageInterpreter] Send chessboard.");
-	irp6_checkers::Chessboard chessboard;
-	irp6_checkers::Checker data;
-	data.type=1;
-	data.x=2;
-	data.y=3;
-	chessboard.Chessboard.push_back(data);
-	data.type=2;
-	data.x=5;
-	data.y=6;
-	chessboard.Chessboard.push_back(data);
-	_chessboard_pub.publish(chessboard);
-	ros::spinOnce();
-	
-	ROS_INFO("[ImageInterpreter] <------ End of data.");
-	*/
+void ImageInterpreter::changeMeterPerPixel(double new_value)
+{
+	meter_per_pixel_ = new_value;
 }
 
 int main(int argc, char **argv)
 {
 	ros::init(argc, argv, "image_interpreter");
-	ImageInterpreter interpreter;
+	ImageInterpreter interpreter(0.3);
 	ros::spin();
 	return 0;
 }

@@ -37,6 +37,7 @@ public:
 	bool win() const;
 	//bool draw(Player player) const;
 	bool draw() const;
+	bool operator==(const Chessboard& board) const;
 	void getCheckers(std::vector<Position>& pawns_1, std::vector<Position>& pawns_2, 
 		std::vector<Position>& kings_1, std::vector<Position>& kings_2) const;
 	friend std::ostream& operator<<(std::ostream &os, const Chessboard& board);

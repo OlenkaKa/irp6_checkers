@@ -53,14 +53,14 @@ add_message_files(
   Checker.msg
   Chessboard.msg
   ChessboardChange.msg
+  ControlElem.msg
 )
 
 ## Generate services in the 'srv' folder
-# add_service_files(
-#   FILES
-#   Service1.srv
-#   Service2.srv
-# )
+add_service_files(
+  FILES
+  Control.srv
+)
 
 ## Generate actions in the 'action' folder
 # add_action_files(
@@ -127,6 +127,8 @@ add_executable(test_sub src/test_sub.cpp)
 add_executable(image_interpreter src/ImageInterpreter.cpp)
 add_executable(chessboard_change_finder src/ChessboardChangeFinder.cpp)
 add_executable(move_determination src/MoveDetermination.cpp)
+add_executable(checkers_manager src/CheckersManager.cpp)
+add_executable(move_manager src/MoveManager.cpp)
 
 ## Add cmake target dependencies of the executable/library
 ## as an example, message headers may need to be generated before nodes
@@ -137,6 +139,8 @@ add_dependencies(checkers irp6_checkers_generate_messages_cpp)
 add_dependencies(image_interpreter irp6_checkers_generate_messages_cpp)
 add_dependencies(chessboard_change_finder irp6_checkers_generate_messages_cpp)
 add_dependencies(move_determination irp6_checkers_generate_messages_cpp)
+add_dependencies(checkers_manager irp6_checkers_generate_messages_cpp)
+add_dependencies(move_manager irp6_checkers_generate_messages_cpp)
 
 ## Specify libraries to link a library or executable target against
 # target_link_libraries(irp6_checkers_node
@@ -148,6 +152,8 @@ target_link_libraries(checkers ${catkin_LIBRARIES})
 target_link_libraries(image_interpreter ${catkin_LIBRARIES} checkers)
 target_link_libraries(chessboard_change_finder ${catkin_LIBRARIES} checkers)
 target_link_libraries(move_determination ${catkin_LIBRARIES} checkers)
+target_link_libraries(checkers_manager ${catkin_LIBRARIES} checkers)
+target_link_libraries(move_manager ${catkin_LIBRARIES})
 #############
 ## Install ##
 #############

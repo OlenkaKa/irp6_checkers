@@ -13,7 +13,9 @@ private:
 	ros::NodeHandle _nh;
 	ros::Publisher _chessboard_change_pub;
 	ros::Subscriber _chessboard_sub;
+
 	Checkers::Chessboard _prev_chessboard;
+	//bool _find_changes;
 }; 
 
 ChessboardChangeFinder::ChessboardChangeFinder()
@@ -27,6 +29,9 @@ void ChessboardChangeFinder::callback(const irp6_checkers::Chessboard& msg)
 {
 	ROS_INFO("[ChessboardChangeFinder] ------> New data received.");
 	Checkers::Chessboard new_chessboard = Checkers::Chessboard(msg);
+	if(new_chessboard == _prev_chessboard)
+		return;
+	irp6_checkers::ChessboardChange data;
 	// TODO
 	_prev_chessboard = new_chessboard;
 }

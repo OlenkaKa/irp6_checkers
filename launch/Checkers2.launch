@@ -1,0 +1,7 @@
+<launch>
+
+	<node name="irp6_control" pkg="irp6_checkers" type="IRPOSControl.py" output="screen"/>
+
+	<node name="move_manager" pkg="irp6_checkers" type="move_manager" output="screen"/>
+	
+</launch>
