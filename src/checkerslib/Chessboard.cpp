@@ -7,36 +7,6 @@ Chessboard::Chessboard()
 {
 }
 
-Chessboard::Chessboard(const irp6_checkers::Chessboard& data)
-{
-	std::vector<irp6_checkers::Checker>::const_iterator end_it = data.Chessboard.end();
-	for(std::vector<irp6_checkers::Checker>::const_iterator it = data.Chessboard.begin(); it != end_it; ++it)
-	{
-			std::cout<<"pos pionka: "<<(*it).x<<" "<<(*it).y<<std::endl;
-		Checkers::FieldValue type;
-		switch((*it).type)
-		{
-		case irp6_checkers::Checker::PAWN_1:
-			type = Checkers::PAWN_1;
-			break;
-		case irp6_checkers::Checker::PAWN_2:
-			type = Checkers::PAWN_2;
-			break;
-		case irp6_checkers::Checker::KING_1:
-			type = Checkers::KING_1;
-			break;
-		case irp6_checkers::Checker::KING_2:
-			type = Checkers::KING_2;
-			break;
-		default:
-			std::cout<<"Nie ma\n";
-		}
-		addChecker(Checkers::Position((*it).x,(*it).y), type);
-	}
-		std::cout<<"!!!!!!!!!! "<<_player_1.size()<<" "<<_player_2.size()<<std::endl;
-		std::cout<<(*this);
-}
-
 void Chessboard::addChecker(const Position& pos, FieldValue val)
 {
 	if(checkPlayer(val, PLAYER_1))
@@ -207,7 +177,7 @@ bool Chessboard::checkEndLine(Player player, const Position& pos) const
 
 bool Chessboard::move(const Move_Ptr& move)
 {
-	std::cout<<"BEFORE MOVE:\t"<<_player_1.size()<<' '<<_player_2.size()<<"!!!\n";
+	//std::cout<<"BEFORE MOVE:\t"<<_player_1.size()<<' '<<_player_2.size()<<"!!!\n";
 	//return this->move(move, *this);
 	Player player;
 	std::map<Position, FieldValue> *player_fields, *opponent_fields;
@@ -233,7 +203,7 @@ bool Chessboard::move(const Move_Ptr& move)
 	auto next_pos = move->getNextPos();
 	auto taking_pos = move->getTakingPos();
 
-	// TODO: sprawdzenie poprawno�ci
+	// TODO: sprawdzenie poprawnosci
 	auto end_it = taking_pos.end();
 	for(auto it=taking_pos.begin(); it!=end_it;)
 	{
@@ -248,7 +218,7 @@ bool Chessboard::move(const Move_Ptr& move)
 	else
 		player_fields->insert(std::make_pair(final_pos, start_val));
 
-	std::cout<<"AFTER MOVE:\t"<<_player_1.size()<<' '<<_player_2.size()<<"!!!\n";
+	//std::cout<<"AFTER MOVE:\t"<<_player_1.size()<<' '<<_player_2.size()<<"!!!\n";
 
 	return true;
 }
@@ -306,6 +276,43 @@ bool Chessboard::win(Player player) const
 	{
 		if(_player_2.empty())
 			return true;
+		std::vector<Move_Ptr> moves;
+		findMoves(PLAYER_2, moves);
+		if(moves.empty())
+			return true;
+	}
+	else
+	{
+		if(_player_1.empty())
+			return true;
+		std::vector<Move_Ptr> moves;
+		findMoves(PLAYER_1, moves);
+		if(moves.empty())
+			return true;
+	}
+	return false;
+}
+
+bool Chessboard::win() const
+{
+	if(win(PLAYER_1) || win(PLAYER_2))
+		return true;
+	return false;
+}
+
+bool Chessboard::draw() const
+{
+	// TODO
+	return false;
+}
+
+/*
+bool Chessboard::win(Player player) const
+{
+	if(player == PLAYER_1)
+	{
+		if(_player_2.empty())
+			return true;
 		return false;
 	}
 	else
@@ -338,13 +345,34 @@ bool Chessboard::draw() const
 	}
 	return false;
 }
+*/
+
+bool Chessboard::legalMove(Player player, const Chessboard& prev, const Chessboard& next)
+{
+	std::vector<Move_Ptr> moves;
+	prev.findMoves(player, moves);
+	auto end_it = moves.end();
+	for(auto it=moves.begin(); it!=end_it; ++it)
+	{
+		Chessboard after_move;
+		prev.move(*it, after_move);
+		if(after_move == next)
+			return true;
+	}
+	return false;
+}
 
 bool Chessboard::operator==(const Chessboard& board) const
 {
+	if(_player_1 == _player_2)
+		return true;
+	return false;
+	/*
 	if(_player_1.size() != _player_2.size())
 		return false;
 	// TODO
 	return true;
+	*/
 }
 
 void Chessboard::getCheckers(std::vector<Position>& pawns_1, std::vector<Position>& pawns_2, 
@@ -551,6 +579,8 @@ void Chessboard::_findTakingMoveContinue(Player player, TakingMove curr_move, co
 {
 	//std::cout<<"*** CURRENT MOVE:\t"<<curr_move<<std::endl;
 	bool move_continue = false;
+	Chessboard curr_board;//
+	move(Move_Ptr(curr_move.clone()), curr_board);//
 	
 	Position taking_pos, next_pos, curr_pos = curr_move.getFinalPos();
 	FieldValue taking_val, next_val;
@@ -566,7 +596,7 @@ void Chessboard::_findTakingMoveContinue(Player player, TakingMove curr_move, co
 				taking_pos = findPosition(player, curr_pos, (Direction)dir, i);
 				if(!taking_pos.valid())
 					break;
-				taking_val = getFieldValue(taking_pos);
+				taking_val = curr_board.getFieldValue(taking_pos);//
 				if(taking_val == EMPTY)
 				{
 					if(limit)
@@ -581,8 +611,8 @@ void Chessboard::_findTakingMoveContinue(Player player, TakingMove curr_move, co
 					next_pos = findPosition(player, taking_pos, (Direction)dir, j);
 					if(!next_pos.valid())
 						break;	// break twice (to change direction)
-					next_val = getFieldValue(next_pos);
-					if(getFieldValue(next_pos) == EMPTY)
+					next_val = curr_board.getFieldValue(next_pos);//
+					if(next_val == EMPTY)//
 					{
 						//std::cout<<"PLACE NEXT:\t"<<next_pos<<std::endl;
 						curr_move.addMove(next_pos, taking_pos);

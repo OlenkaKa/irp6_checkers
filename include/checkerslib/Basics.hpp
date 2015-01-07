@@ -46,6 +46,7 @@ FieldValue createKing(FieldValue field);
 Direction operator!(const Direction& dir);
 Player operator!(const Player& player);
 Position findPosition(Player player, Position pos, Direction dir, int steps);
+int findLineNumber(Player player, const Position& pos);
 
 }	// Checkers
 

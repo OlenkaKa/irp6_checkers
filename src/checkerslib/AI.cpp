@@ -22,13 +22,17 @@ Move_Ptr AI::determineMove(const Chessboard& board)
 	Chessboard board_after_move;
 	board.move(max_move, board_after_move);
 	int max_result = _min_max(!_player, board_after_move, deep, INT_MIN, INT_MAX);
+	std::cout<<max_move<<'\t'<<max_result<<std::endl;
 
 	//std::cout<<"RESULTS\n";
 	//std::cout<<max_move<<'\t'<<max_result<<std::endl;
 
+	int i = 0;
 	auto end_it = moves.end();
 	for(auto it=++(moves.begin()); it!=end_it; ++it)
 	{
+		++i;
+		//if(i == 4) continue;
 		board.move(*it, board_after_move);
 		int new_result = _min_max(!_player, board_after_move, deep, INT_MIN, INT_MAX);
 		std::cout<<*it<<'\t'<<new_result<<std::endl;
@@ -111,25 +115,102 @@ int AI::h(const Chessboard& board)
 	for(auto it=taking_moves.begin(); it!=end_it; ++it)
 		result -= 3*(*it)->countTakingPieces();
 
-	/*
-	// points for levels
+	// points for pawn's level
 	// for player
 	auto end_it_pos = player_pawns->end();
 	for(auto it=player_pawns->begin(); it!=end_it_pos; ++it)
 	{
-		switch((*it).getY() - )
+		switch(findLineNumber(_player, *it))
 		{
-			case 
+		case 0:
+		case 1:
+			break;
+		case 2:
+		case 3:
+			result += 1;
+			break;
+		case 4:
+		case 5:
+			result += 2;
+			break;
+		case 6:
+		case 7:
+			result += 3;
+			break;
+		default:
+			break;
 		}
 	}
-	*/
+	// for opponent
+	end_it_pos = opponent_pawns->end();
+	for(auto it=opponent_pawns->begin(); it!=end_it_pos; ++it)
+	{
+		switch(findLineNumber(!_player, *it))
+		{
+		case 0:
+		case 1:
+			break;
+		case 2:
+		case 3:
+			result -= 1;
+			break;
+		case 4:
+		case 5:
+			result -= 2;
+			break;
+		case 6:
+		case 7:
+			result -= 3;
+			break;
+		default:
+			break;
+		}
+	}
+
+	// points for king's distance from edges
+	// for player
+	auto end_it_king_pos = player_kings->end();
+	for(auto it=player_kings->begin(); it!=end_it_king_pos; ++it)
+	{
+		switch((*it).getX())
+		{
+		case 0:
+		case 7:
+			result += 3;
+			break;
+		case 1:
+		case 6:
+			result += 1;
+			break;
+		default:
+			break;
+		}
+	}
+	// for opponent
+	end_it_king_pos = opponent_kings->end();
+	for(auto it=opponent_kings->begin(); it!=end_it_king_pos; ++it)
+	{
+		switch((*it).getX())
+		{
+		case 0:
+		case 7:
+			result -= 3;
+			break;
+		case 1:
+		case 6:
+			result -= 1;
+			break;
+		default:
+			break;
+		}
+	}
 
 	return result;
 }
 
 int AI::_min_max(Player curr_player, const Chessboard& board, int deep, int alpha, int beta)
 {
-	if(deep <= 0 || board.win())
+	if(deep <= 0 || board.win() || board.draw())
 		return h(board);
 
 	std::vector<Move_Ptr> moves;

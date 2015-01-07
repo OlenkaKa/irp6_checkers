@@ -1,4 +1,5 @@
 #include "Basics.hpp"
+#include "Chessboard.hpp"
 #include <exception>
 
 namespace Checkers {
@@ -85,6 +86,14 @@ Player operator!(const Player& p)
 	if(p == PLAYER_1)
 		return PLAYER_2;
 	return PLAYER_1;
+}
+
+int findLineNumber(Player player, const Position& pos)
+{
+	int y = pos.getY();
+	if(player == PLAYER_1)
+		return y;
+	return Chessboard::CHESSBOARD_SIZE - 1 - y;
 }
 
 }	// Checkers

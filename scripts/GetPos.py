@@ -21,7 +21,7 @@ class CheckersIRPOS(IRPOS):
 		print "[CheckersIRPOS] Move to start position"
 		IRPOS.move_to_joint_position(self, [0, -1.4791420483915523, -0.16173032244035423, 0.07007528019972864, 4.712388138719054, -1.5707949127454675], 6.00)
 		#rospy.sleep(2)
-		IRPOS.move_to_cartesian_pose(self, 3.00, Pose(Point(0.9, 0, 1.30), Quaternion(0, 1, 0, 0)))
+		IRPOS.move_to_cartesian_pose(self, 3.00, Pose(Point(0.9, 0, 1.25), Quaternion(0, 1, 0, 0)))
 	
 	def get_checker(self):
 		print "[CheckersIRPOS] Get checker action"
@@ -71,8 +71,11 @@ class CheckersIRPOS(IRPOS):
 		rospy.spin()
 
 if __name__ == '__main__':
-	irpos = CheckersIRPOS("warcaby", "Irp6p", 6)
+	irpos = CheckersIRPOS("IRpOS", "Irp6p", 6)
 	#irpos.test()
 	irpos.prepare_to_game()
-	irpos.control_server()
+	irpos.move_rel_to_cartesian_pose_with_contact(30.00, Pose(Point(0, 0, 0.40), Quaternion(0, 0, 0, 1)), Wrench(Vector3(0.0, 0.0, 5.0), Vector3(0.0, 0.0, 0.0)))
+	pose = irpos.get_cartesian_pose()
+	print pose
+	#irpos.control_server()
 	

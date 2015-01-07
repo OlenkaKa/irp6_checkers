@@ -5,8 +5,6 @@
 #include "TakingMove.hpp"
 #include "NotTakingMove.hpp"
 
-#include "irp6_checkers/Chessboard.h"
-
 #include <map>
 #include <vector>
 #include <iostream>
@@ -22,7 +20,6 @@ public:
 	static const int PLAYER_LINES_AT_START;
 
 	Chessboard();
-	Chessboard(const irp6_checkers::Chessboard& data);
 	void addChecker(const Position& pos, FieldValue val);
 	void initGame();
 	void clear();
@@ -37,6 +34,7 @@ public:
 	bool win() const;
 	//bool draw(Player player) const;
 	bool draw() const;
+	static bool legalMove(Player player, const Chessboard& prev, const Chessboard& next);
 	bool operator==(const Chessboard& board) const;
 	void getCheckers(std::vector<Position>& pawns_1, std::vector<Position>& pawns_2, 
 		std::vector<Position>& kings_1, std::vector<Position>& kings_2) const;
@@ -99,6 +97,37 @@ public:
 
 	}
 	*/
+
+	void prepareExample5()
+	{
+		_player_1.insert(std::make_pair(Position(2,0),PAWN_1));
+		_player_1.insert(std::make_pair(Position(4,0),PAWN_1));
+		_player_1.insert(std::make_pair(Position(6,0),PAWN_1));
+		_player_1.insert(std::make_pair(Position(3,1),PAWN_1));
+		_player_1.insert(std::make_pair(Position(5,1),PAWN_1));
+		_player_1.insert(std::make_pair(Position(5,3),PAWN_1));
+		_player_1.insert(std::make_pair(Position(2,4),PAWN_1));
+		_player_1.insert(std::make_pair(Position(7,5),PAWN_1));
+
+		_player_2.insert(std::make_pair(Position(1,7),PAWN_2));
+		_player_2.insert(std::make_pair(Position(3,7),PAWN_2));
+		_player_2.insert(std::make_pair(Position(5,7),PAWN_2));
+		_player_2.insert(std::make_pair(Position(7,7),PAWN_2));
+		_player_2.insert(std::make_pair(Position(0,6),PAWN_2));
+		_player_2.insert(std::make_pair(Position(6,6),PAWN_2));
+		_player_2.insert(std::make_pair(Position(0,0),KING_2));
+
+	}
+
+	void prepareExample6()
+	{
+		_player_1.insert(std::make_pair(Position(2,2),PAWN_1));
+		_player_1.insert(std::make_pair(Position(6,4),PAWN_1));
+		_player_1.insert(std::make_pair(Position(5,1),PAWN_1));
+
+		_player_2.insert(std::make_pair(Position(0,0),KING_2));
+
+	}
 
 
 private:
