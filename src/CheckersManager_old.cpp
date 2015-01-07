@@ -2,11 +2,67 @@
 #include "irp6_checkers/ImageData.h"
 #include "irp6_checkers/Control.h"
 #include "Checkers.hpp"
-#include "CheckersPoints.h"
 #include <iostream>
 
 using namespace std;
 
+/********************************************************************/
+struct ImagePoint
+{
+	ImagePoint(double xx = 0, double yy = 0);
+	double x;
+	double y;
+};
+
+ImagePoint::ImagePoint(double xx, double yy): x(xx), y(yy)
+{
+}
+
+class CheckersPoints
+{
+public:
+	CheckersPoints();
+	void addPoint(ImagePoint point);
+	void addPoint(Checkers::Position pos, ImagePoint point);
+	ImagePoint getPoint();
+	ImagePoint getPoint(Checkers::Position pos);
+private:
+	std::map<Checkers::Position, ImagePoint> checkers_;
+	std::list<ImagePoint> free_kings_;
+};
+
+CheckersPoints::CheckersPoints()
+{
+}
+
+void CheckersPoints::addPoint(ImagePoint point)
+{
+	free_kings_.push_back(point);
+}
+
+void CheckersPoints::addPoint(Checkers::Position pos, ImagePoint point)
+{
+	checkers_.insert(std::make_pair(pos, point));
+}
+
+ImagePoint CheckersPoints::getPoint()
+{
+	if(free_kings_.size() == 0)
+		return ImagePoint(-1, -1);
+	ImagePoint result = free_kings_.front();
+	free_kings_.pop_front();
+	return result;
+}
+
+ImagePoint CheckersPoints::getPoint(Checkers::Position pos)
+{
+	auto it = checkers_.find(pos);
+	if(it == checkers_.end())
+		return ImagePoint(-1, -1);
+	return it->second;
+}
+
+/********************************************************************/
 class CheckersManager
 {
 public:
@@ -23,7 +79,6 @@ private:
 
 	// Checkers
 	Checkers::Player player_;
-	Checkers::Chessboard prev_chessboard_;
 	Checkers::Chessboard chessboard_;
 	Checkers::AI ai_;
 	
@@ -33,13 +88,12 @@ private:
 	// Properties
 	double meter_per_pixel_x_;
 	double meter_per_pixel_y_;
-	bool image_data_receive_;
+	ImagePoint box_;
 }; 
 
-CheckersManager::CheckersManager(double meter_per_pixel_x, double meter_per_pixel_y) :
+CheckersManager::CheckersManager(double meter_per_pixel_x, double meter_per_pixel_y) : 
 	player_(Checkers::PLAYER_2), ai_(Checkers::PLAYER_1), 
-	meter_per_pixel_x_(meter_per_pixel_x), meter_per_pixel_y_(meter_per_pixel_y),
-	image_data_receive_(false)	// opponent start game
+	meter_per_pixel_x_(meter_per_pixel_x), meter_per_pixel_y_(meter_per_pixel_y)	// opponent start game
 {
 	control_client_ = nh_.serviceClient<irp6_checkers::Control>("irp6_control");
 	image_data_sub_ = nh_.subscribe("image_data", 1000, &CheckersManager::callback, this);
@@ -49,13 +103,11 @@ CheckersManager::CheckersManager(double meter_per_pixel_x, double meter_per_pixe
 void CheckersManager::callback(const irp6_checkers::ImageData& msg)
 {
 	ROS_INFO("[CheckersManager] ------> New data received.");
-	if(msg.WhiteFieldsNum < 32 /*|| !image_data_receive_*/)
+	if(msg.WhiteFieldsNum < 32)
 	{
-		cout<<chessboard_;
-		cout<<"Cannot accept image data."<<msg.WhiteFieldsNum<<".\n";
+		cout<<"Too few white fields: "<<msg.WhiteFieldsNum<<".\n";
 		return;
 	}
-	prev_chessboard_ = chessboard_;
 	chessboard_.clear();
 	int width = msg.MaxCorner.x-msg.MinCorner.x;
 	int deltaX = width/8;
@@ -94,36 +146,25 @@ void CheckersManager::callback(const irp6_checkers::ImageData& msg)
 		if(!(checker_x >= 8 || checker_y >= 8 || checker_x < 0 || checker_y < 0))
 		{
 			chessboard_.addChecker(Checkers::Position(checker_x,checker_y), checker_type);
-			irp6_checkers::Point point;
-			point.x = (*it).x;
-			point.y = (*it).y;
-			checker_points_.addChecker(Checkers::Position(checker_x,checker_y), point);
+			checker_points_.addPoint(Checkers::Position(checker_x,checker_y), ImagePoint((*it).x,(*it).y));
 		}
 		else if(checker_type == Checkers::KING_1)
 		{
-			irp6_checkers::Point point;
-			point.x = (*it).x;
-			point.y = (*it).y;
-			checker_points_.addFreeKing(point);
+			checker_points_.addPoint(ImagePoint((*it).x,(*it).y));
 		}
 	}
 	cout<<"Chessboard:\n";
 	cout<<chessboard_;
-/*
-	cout<<"Chessboard:\n";
-	cout<<chessboard_;
-	cout<<"\n";
-	irp6_checkers::Point img = checker_points_.getChecker();
+	cout<<"************************************************************\n";
+	ImagePoint img = checker_points_.getPoint();
 	while(img.x >= 0)
 	{
 		cout<<"["<<img.x<<", "<<img.y<<"]\n";
-		img = checker_points_.getChecker();
+		img = checker_points_.getPoint();
 	}
-	cout<<"\n";
-*/
+	cout<<"************************************************************\n";
 	ros::spinOnce();
 	ROS_INFO("[CheckersManager] <------ End of data.");
-	image_data_receive_ = false;
 }
 
 
@@ -153,26 +194,13 @@ void CheckersManager::play()
 {
 	while(true)
 	{
-		if(player_ == Checkers::PLAYER_2)
+		if(player_ == Checkers::PLAYER_1)
 		{
-			cout<<"I'm waiting for your move. Press key when finished.\n";
-			getchar();
-			image_data_receive_ = true;
-			if(!Checkers::Chessboard::legalMove(player_, prev_chessboard_, chessboard_))
-			{
-				cout<<"Incorrect move! Goodbye!\n";
-				break;
-			}
-			else cout<<"Good\n";
 		}
 		else
 		{
-			image_data_receive_ = true;
-			while(image_data_receive_);
-			Checkers::Move_Ptr move = ai_.determineMove(chessboard_);
-			cout<<"I cannot move now ;( Sorry....\n";
 		}
-		player_ = !player_;
+		break;
 	}
 }
 
@@ -181,10 +209,9 @@ int main(int argc, char **argv)
 {
 	ros::init(argc, argv, "checkers_manager");
 	CheckersManager manager(2,2);
-	cout<<"Hello, let's play :D!\n";
-	sleep(15);
+	sleep(25);
 	manager.play();
-	//manager.temp();
+	manager.temp();
 	ros::spin();
 	return 0;
 }

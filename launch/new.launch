@@ -15,12 +15,12 @@
 		name="$(arg NAME)"
 		pkg="irp6_checkers" type="discode" 
       		args="-L$(arg LOG_LEVEL) -T$(arg DISCODE_TASK) $(arg DISCODE_ARGS) --" 
-      		output="screen">
+      		launch-prefix="xterm -e">
 		<env name="DISCODE_DCL_DIR" value="$(arg DISCODE_DCL_DIR)"/>
 	</node>
 	
-	<node name="checkers_manager" pkg="irp6_checkers" type="checkers_manager" output="screen"/>
+	<node name="checkers_manager" pkg="irp6_checkers" type="checkers_manager" launch-prefix="xterm -e"/>
 
-	<node name="irp6_control" pkg="irp6_checkers" type="IRPOSControl.py" output="screen"/>
+	<node name="irp6_control" pkg="irp6_checkers" type="IRPOSControl.py" launch-prefix="xterm -e"/>
 	
 </launch>

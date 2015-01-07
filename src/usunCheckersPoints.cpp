@@ -1,4 +1,4 @@
-#include "CheckerPoints.h"
+#include "CheckersPoints.h"
 
 using namespace std;
 
@@ -16,8 +16,14 @@ void CheckersPoints::addChecker(const Checkers::Position& pos, const irp6_checke
 	checkers_.insert(std::make_pair(pos, point));
 }
 
-irp6_checkers::Point CheckersPoints::getPoint()
+irp6_checkers::Point CheckersPoints::getFreeKing()
 {
+	if(free_kings_.size() == 0)
+	{
+		irp6_checkers::Point result;
+		result.x = result.y = -1;
+		return result;
+	}
 	return free_kings_.front();
 /*
 	if(free_kings_.size() == 0)
@@ -28,10 +34,14 @@ irp6_checkers::Point CheckersPoints::getPoint()
 */
 }
 
-irp6_checkers::Point CheckersPoints::getPoint(const Checkers::Position& pos) const
+irp6_checkers::Point CheckersPoints::getChecker(const Checkers::Position& pos) const
 {
 	auto it = checkers_.find(pos);
 	if(it == checkers_.end())
-		return irp6_checkers::Point(-1, -1);
+	{
+		irp6_checkers::Point result;
+		result.x = result.y = -1;
+		return result;
+	}
 	return it->second;
 }
