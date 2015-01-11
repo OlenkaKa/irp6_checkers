@@ -120,12 +120,16 @@ add_library(checkers
 ## Declare a cpp executable
 # add_executable(irp6_checkers_node src/irp6_checkers_node.cpp)
 add_executable(checkers_manager src/CheckersManager.cpp)
+add_executable(test_pub src/test_pub.cpp)
+add_executable(test_sub src/test_sub.cpp)
 
 ## Add cmake target dependencies of the executable/library
 ## as an example, message headers may need to be generated before nodes
 # add_dependencies(irp6_checkers_node irp6_checkers_generate_messages_cpp)
 add_dependencies(checkers irp6_checkers_generate_messages_cpp)
 add_dependencies(checkers_manager irp6_checkers_generate_messages_cpp)
+add_dependencies(test_pub irp6_checkers_generate_messages_cpp)
+add_dependencies(test_sub irp6_checkers_generate_messages_cpp)
 
 
 ## Specify libraries to link a library or executable target against
@@ -134,6 +138,8 @@ add_dependencies(checkers_manager irp6_checkers_generate_messages_cpp)
 # )
 target_link_libraries(checkers ${catkin_LIBRARIES})
 target_link_libraries(checkers_manager ${catkin_LIBRARIES} checkers)
+target_link_libraries(test_pub ${catkin_LIBRARIES} checkers)
+target_link_libraries(test_sub ${catkin_LIBRARIES} checkers)
 #############
 ## Install ##
 #############
