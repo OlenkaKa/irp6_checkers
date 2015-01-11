@@ -516,6 +516,8 @@ void Chessboard::_findMove(Player player, const Position& curr_pos, Direction di
 			}
 			break;
 		}
+		else
+			break;
 		if(limit)	// PAWN move
 			break;
 	}
