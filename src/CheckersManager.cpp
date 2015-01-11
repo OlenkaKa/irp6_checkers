@@ -12,6 +12,7 @@ class CheckersManager
 public:
 	CheckersManager(double meter_per_pixel_x, double meter_per_pixel_y);
 	void callback(const irp6_checkers::ImageData& msg);
+	void createChessboard();
 	void play();
 	void temp();
 	
@@ -26,6 +27,7 @@ private:
 	Checkers::Chessboard prev_chessboard_;
 	Checkers::Chessboard chessboard_;
 	Checkers::AI ai_;
+	irp6_checkers::ImageData image_data_;
 	
 	// Control
 	CheckersPoints checker_points_;
@@ -33,13 +35,11 @@ private:
 	// Properties
 	double meter_per_pixel_x_;
 	double meter_per_pixel_y_;
-	bool image_data_receive_;
 }; 
 
 CheckersManager::CheckersManager(double meter_per_pixel_x, double meter_per_pixel_y) :
 	player_(Checkers::PLAYER_2), ai_(Checkers::PLAYER_1), 
-	meter_per_pixel_x_(meter_per_pixel_x), meter_per_pixel_y_(meter_per_pixel_y),
-	image_data_receive_(false)	// opponent start game
+	meter_per_pixel_x_(meter_per_pixel_x), meter_per_pixel_y_(meter_per_pixel_y)
 {
 	control_client_ = nh_.serviceClient<irp6_checkers::Control>("irp6_control");
 	image_data_sub_ = nh_.subscribe("image_data", 1000, &CheckersManager::callback, this);
@@ -48,27 +48,28 @@ CheckersManager::CheckersManager(double meter_per_pixel_x, double meter_per_pixe
 
 void CheckersManager::callback(const irp6_checkers::ImageData& msg)
 {
-	ROS_INFO("[CheckersManager] ------> New data received.");
-	if(msg.WhiteFieldsNum < 32 /*|| !image_data_receive_*/)
-	{
-		cout<<chessboard_;
-		cout<<"Cannot accept image data."<<msg.WhiteFieldsNum<<".\n";
+	if(msg.WhiteFieldsNum != 32)
 		return;
-	}
+	image_data_ = msg;
+}
+
+void CheckersManager::createChessboard()
+{
 	prev_chessboard_ = chessboard_;
 	chessboard_.clear();
-	int width = msg.MaxCorner.x-msg.MinCorner.x;
+	
+	int width = image_data_.MaxCorner.x-image_data_.MinCorner.x;
 	int deltaX = width/8;
-	int height = msg.MaxCorner.y-msg.MinCorner.y;
+	int height = image_data_.MaxCorner.y-image_data_.MinCorner.y;
 	int deltaY = height/8;
 
-	std::vector<irp6_checkers::ColorPoint>::const_iterator end_it = msg.CheckerFields.end();
-	for(std::vector<irp6_checkers::ColorPoint>::const_iterator it = msg.CheckerFields.begin(); it != end_it; ++it)
+	std::vector<irp6_checkers::ColorPoint>::const_iterator end_it = image_data_.CheckerFields.end();
+	for(std::vector<irp6_checkers::ColorPoint>::const_iterator it = image_data_.CheckerFields.begin(); it != end_it; ++it)
 	{
 		int checker_x = 0, checker_y = 0;
-		for(int i = msg.MinCorner.x+deltaX; i < (*it).x; i += deltaX)
+		for(int i = image_data_.MinCorner.x+deltaX; i < (*it).x; i += deltaX)
 			++checker_x;
-		for(int i = msg.MinCorner.y+deltaY; i < (*it).y; i += deltaY)
+		for(int i = image_data_.MinCorner.y+deltaY; i < (*it).y; i += deltaY)
 			++checker_y;
 		checker_y = 7 - checker_y;	// bo odwrócony obraz
 		
@@ -109,21 +110,6 @@ void CheckersManager::callback(const irp6_checkers::ImageData& msg)
 	}
 	cout<<"Chessboard:\n";
 	cout<<chessboard_;
-/*
-	cout<<"Chessboard:\n";
-	cout<<chessboard_;
-	cout<<"\n";
-	irp6_checkers::Point img = checker_points_.getChecker();
-	while(img.x >= 0)
-	{
-		cout<<"["<<img.x<<", "<<img.y<<"]\n";
-		img = checker_points_.getChecker();
-	}
-	cout<<"\n";
-*/
-	ros::spinOnce();
-	ROS_INFO("[CheckersManager] <------ End of data.");
-	image_data_receive_ = false;
 }
 
 
@@ -157,20 +143,19 @@ void CheckersManager::play()
 		{
 			cout<<"I'm waiting for your move. Press key when finished.\n";
 			getchar();
-			image_data_receive_ = true;
+			
 			if(!Checkers::Chessboard::legalMove(player_, prev_chessboard_, chessboard_))
-			{
-				cout<<"Incorrect move! Goodbye!\n";
-				break;
-			}
-			else cout<<"Good\n";
+				cout<<"Incorrect move!\n";
+			else 
+				cout<<"Good move!\n";
 		}
-		else
+		else	// robot move
 		{
-			image_data_receive_ = true;
-			while(image_data_receive_);
+			ros::spinOnce();
+			createChessboard();
 			Checkers::Move_Ptr move = ai_.determineMove(chessboard_);
-			cout<<"I cannot move now ;( Sorry....\n";
+			cout<<"Decision:\n"<<move<<endl;
+			cout<<"\nI cannot move now ;( Sorry....\n";
 		}
 		player_ = !player_;
 	}
@@ -185,6 +170,5 @@ int main(int argc, char **argv)
 	sleep(15);
 	manager.play();
 	//manager.temp();
-	ros::spin();
 	return 0;
 }
