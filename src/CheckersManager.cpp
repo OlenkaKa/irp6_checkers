@@ -15,6 +15,7 @@ public:
 	void createChessboard();
 	void play();
 	void temp();
+	bool endGame();
 	
 private:
 	// ROS
@@ -141,6 +142,12 @@ void CheckersManager::play()
 	{
 		if(player_ == Checkers::PLAYER_2)
 		{
+			if(endGame())
+			{
+				cout<<"The end, I win.\n";
+				return;
+			}
+				
 			cout<<"I'm waiting for your move. Press key when finished.\n";
 			getchar();
 			
@@ -151,14 +158,27 @@ void CheckersManager::play()
 		}
 		else	// robot move
 		{
-			ros::spinOnce();
-			createChessboard();
+			if(endGame())
+			{
+				cout<<"Congrtulation, you win!!! :)\n";
+				break;
+			}
+			
 			Checkers::Move_Ptr move = ai_.determineMove(chessboard_);
 			cout<<"Decision:\n"<<move<<endl;
 			cout<<"\nI cannot move now ;( Sorry....\n";
 		}
 		player_ = !player_;
+		ros::spinOnce();
+		createChessboard();
 	}
+}
+
+bool CheckersManager::endGame()
+{
+	if(chessboard_.win() || chessboard_.draw())
+		return true;
+	return false;
 }
 
 /********************************************************************/
