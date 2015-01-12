@@ -39,11 +39,11 @@ private:
 }; 
 
 CheckersManager::CheckersManager(double meter_per_pixel_x, double meter_per_pixel_y) :
-	player_(Checkers::PLAYER_2), ai_(Checkers::PLAYER_1), 
+	player_(Checkers::PLAYER_1), ai_(Checkers::PLAYER_2), 
 	meter_per_pixel_x_(meter_per_pixel_x), meter_per_pixel_y_(meter_per_pixel_y)
 {
 	control_client_ = nh_.serviceClient<irp6_checkers::Control>("irp6_control");
-	image_data_sub_ = nh_.subscribe("image_data", 1000, &CheckersManager::callback, this);
+	image_data_sub_ = nh_.subscribe("image_data", 1, &CheckersManager::callback, this);
 	chessboard_.initGame();
 }
 
@@ -78,16 +78,16 @@ void CheckersManager::createChessboard()
 		switch((*it).color)
 		{
 		case irp6_checkers::ColorPoint::COLOR_GREEN:
-			checker_type = Checkers::PAWN_1;
-			break;
-		case irp6_checkers::ColorPoint::COLOR_RED:
 			checker_type = Checkers::PAWN_2;
 			break;
+		case irp6_checkers::ColorPoint::COLOR_RED:
+			checker_type = Checkers::PAWN_1;
+			break;
 		case irp6_checkers::ColorPoint::COLOR_BLUE:
-			checker_type = Checkers::KING_1;
+			checker_type = Checkers::KING_2;
 			break;
 		case irp6_checkers::ColorPoint::COLOR_YELLOW:
-			checker_type = Checkers::KING_2;
+			checker_type = Checkers::KING_1;
 			break;
 		default:
 			cout<<"Invalid checker color.\n";
@@ -95,13 +95,14 @@ void CheckersManager::createChessboard()
 		}
 		if(!(checker_x >= 8 || checker_y >= 8 || checker_x < 0 || checker_y < 0))
 		{
+			cout<<"Jestem tu\n";
 			chessboard_.addChecker(Checkers::Position(checker_x,checker_y), checker_type);
 			irp6_checkers::Point point;
 			point.x = (*it).x;
 			point.y = (*it).y;
 			checker_points_.addChecker(Checkers::Position(checker_x,checker_y), point);
 		}
-		else if(checker_type == Checkers::KING_1)
+		else if(checker_type == Checkers::KING_2)
 		{
 			irp6_checkers::Point point;
 			point.x = (*it).x;
@@ -140,17 +141,13 @@ void CheckersManager::play()
 {
 	while(true)
 	{
-		if(player_ == Checkers::PLAYER_2)
-		{
-			if(endGame())
-			{
-				cout<<"The end, I win.\n";
-				return;
-			}
-				
+		if(player_ == Checkers::PLAYER_1)
+		{				
 			cout<<"I'm waiting for your move. Press key when finished.\n";
 			getchar();
-			
+			sleep(2);
+			ros::spinOnce();
+			createChessboard();
 			if(!Checkers::Chessboard::legalMove(player_, prev_chessboard_, chessboard_))
 				cout<<"Incorrect move!\n";
 			else 
@@ -158,19 +155,20 @@ void CheckersManager::play()
 		}
 		else	// robot move
 		{
+			/*
 			if(endGame())
 			{
 				cout<<"Congrtulation, you win!!! :)\n";
 				break;
 			}
-			
+			* */
+			ros::spinOnce();
+			createChessboard();
 			Checkers::Move_Ptr move = ai_.determineMove(chessboard_);
 			cout<<"Decision:\n"<<move<<endl;
 			cout<<"\nI cannot move now ;( Sorry....\n";
 		}
 		player_ = !player_;
-		ros::spinOnce();
-		createChessboard();
 	}
 }
 
