@@ -1,7 +1,8 @@
 #include "ros/ros.h"
-#include "ros/callback_queue.h"
-#include "std_msgs/String.h"
-#include <boost/thread/thread.hpp>
+#include "irp6_checkers/ImageData.h"
+#include "irp6_checkers/Control.h"
+#include "Checkers.hpp"
+#include "CheckersPoints.h"
 #include <iostream>
 
 using namespace std;
@@ -9,65 +10,94 @@ using namespace std;
 class CheckersManager
 {
 public:
-	CheckersManager();
-	~CheckersManager();
-	void callback(const std_msgs::String& msg);
-	void play();
-	void temp();
+	CheckersManager(double meter_per_pixel_x, double meter_per_pixel_y);
+	void callback(const irp6_checkers::ImageData& msg);
+	bool moveRobot();
 	
 private:
 	// ROS
 	ros::NodeHandle nh_;
+	ros::ServiceClient control_client_;
 	ros::Subscriber image_data_sub_;
-	ros::CallbackQueue image_info;
-	//ros::AsyncSpinner* spinner;
+
+	irp6_checkers::ImageData image_data_;
+
+	// Properties
+	irp6_checkers::Point start_image_pos_;
+	double meter_per_pixel_x_;
+	double meter_per_pixel_y_;
 }; 
 
-CheckersManager::CheckersManager()
+CheckersManager::CheckersManager(double meter_per_pixel_x, double meter_per_pixel_y) :
+	meter_per_pixel_x_(0.00038835), meter_per_pixel_y_(0.0004)
 {
-	image_data_sub_ = nh_.subscribe("chatter", 1000, &CheckersManager::callback, this);
-	//spinner = new ros::AsyncSpinner(4);
-	//spinner->start();
+	start_image_pos_.x = 594;
+	start_image_pos_.y = 649;
+	control_client_ = nh_.serviceClient<irp6_checkers::Control>("irp6_control");
+	image_data_sub_ = nh_.subscribe("image_data", 1, &CheckersManager::callback, this);
 }
 
-CheckersManager::~CheckersManager()
+void CheckersManager::callback(const irp6_checkers::ImageData& msg)
 {
-	//delete spinner;
+	if(msg.WhiteFieldsNum != 32)
+		return;
+	image_data_ = msg;
 }
 
-void CheckersManager::callback(const std_msgs::String& msg)
+bool CheckersManager::moveRobot()
 {
-	ROS_INFO("New data received.");
-}
-
-
-void CheckersManager::temp()
-{
-}
-
-void CheckersManager::play()
-{
-	for(int i=0; i<1000000; i++)
+	ros::spinOnce();
+	
+	irp6_checkers::Control srv;
+	irp6_checkers::ControlElem elem;
+	
+	
+	std::vector<irp6_checkers::ColorPoint>::const_iterator end_it = image_data_.CheckerFields.end();
+	for(std::vector<irp6_checkers::ColorPoint>::const_iterator it = image_data_.CheckerFields.begin(); it != end_it; ++it)
 	{
-		cout<<"I'm working!\n";
-		//int a = 15+7;
-		//int b = a%2;
-		sleep(10);
-		image_info.callOne(ros::WallDuration(0));
-		//ros::getGlobalCallbackQueue()->callOne(ros::WallDuration(0));
+		if((*it).color == irp6_checkers::ColorPoint::COLOR_GREEN)
+		{	
+			irp6_checkers::ColorPoint start_image = (*it);
+			//irp6_checkers::Point end_image = checker_points_.getChecker(move->getFinalPos());
+	
+			// go to piece
+			elem.X = -(start_image.y - start_image_pos_.y)*meter_per_pixel_y_;
+			elem.Y = (start_image.x - start_image_pos_.x)*meter_per_pixel_x_;
+			elem.Action = irp6_checkers::ControlElem::GET_CHECKER;
+			cout<<"1:\t"<<elem.X<<" "<<elem.Y<<endl;
+			cout<<"Poniewaz:\n";
+			cout<<start_image_pos_.x<<" "<<start_image_pos_.y<<endl;
+			cout<<start_image.x<<" "<<start_image.y<<endl;
+			srv.request.Controls.push_back(elem);
+			
+			//elem.X = 0.004;
+			//elem.Y = 0.004;
+			//elem.Action = irp6_checkers::ControlElem::PUT_CHECKER;
+			//srv.request.Controls.push_back(elem);
+			
+			break;
+		}
 	}
+	
+	if (control_client_.call(srv))
+	{
+		ROS_INFO("[CheckersManager] Send message: %d!", srv.response.Status);
+	}
+	else
+	{
+		ROS_ERROR("[CheckersManager] Failed to call service irp6_control");
+	}
+	return true;
 }
 
 /********************************************************************/
 int main(int argc, char **argv)
 {
 	ros::init(argc, argv, "checkers_manager");
-	CheckersManager manager;
+	CheckersManager manager(2,2);
 	cout<<"Hello, let's play :D!\n";
-	//boost::thread* thr = new boost::thread(boost::bind(&CheckersManager::play, &manager));
-	//thr->join();
-	manager.play();
-	//ros::waitForShutdown();
-	//delete thr;
+	sleep(15);
+	manager.moveRobot();
+	//manager.temp();
 	return 0;
 }

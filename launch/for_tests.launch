@@ -21,6 +21,6 @@
 
 	<node name="irp6_control" pkg="irp6_checkers" type="IRPOSControl.py" launch-prefix="xterm -e"/>
 
-	<node name="checkers_manager" pkg="irp6_checkers" type="checkers_manager" output="screen"/>
+	<node name="test_sub" pkg="irp6_checkers" type="test_sub" output="screen"/>
 	
 </launch>
