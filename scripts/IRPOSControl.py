@@ -2,6 +2,7 @@
 
 from irpos import *
 from irp6_checkers.srv import *
+import math
 #from irp6_checkers.msg import *
 
 class CheckersIRPOS(IRPOS):
@@ -19,38 +20,39 @@ class CheckersIRPOS(IRPOS):
 	
 	def prepare_to_game(self):
 		print "[CheckersIRPOS] Move to start position"
-		IRPOS.move_to_joint_position(self, [0, -1.4791420483915523, -0.16173032244035423, 0.07007528019972864, 4.712388138719054, -1.5707949127454675], 6.00)
-		#rospy.sleep(2)
-		IRPOS.move_to_cartesian_pose(self, 3.00, Pose(Point(0.9, 0, 1.30), Quaternion(0, 1, 0, 0)))
+		IRPOS.move_to_joint_position(self, [0, -1.4791420483915523, -0.16173032244035423, 0.07007528019972864, 4.712388138719054, -1.5707949127454675], 4.00)
+		IRPOS.move_to_cartesian_pose(self, 2.00, Pose(Point(0.9, 0, 1.30), Quaternion(0, 1, 0, 0)))
+		IRPOS.tfg_to_joint_position(self, 0.08, 3.00)
 	
 	def get_checker(self):
 		print "[CheckersIRPOS] Get checker action"
-		IRPOS.tfg_to_joint_position(self, 0.078, 10.00)
-		IRPOS.move_rel_to_cartesian_pose_with_contact(self, 30.00, Pose(Point(0, 0, 0.40), Quaternion(0, 0, 0, 1)), Wrench(Vector3(0.0, 0.0, 5.0), Vector3(0.0, 0.0, 0.0)))
-		IRPOS.move_rel_to_cartesian_pose(self, 5.00, Pose(Point(0, 0, -0.002), Quaternion(0, 0, 0, 1)))
-		IRPOS.tfg_to_joint_position(self, 0.063, 10.00)
-		IRPOS.move_rel_to_cartesian_pose(self, 10.00, Pose(Point(0, 0, -0.1), Quaternion(0, 0, 0, 1)))
+		#IRPOS.tfg_to_joint_position(self, 0.078, 10.00)
+		IRPOS.move_rel_to_cartesian_pose_with_contact(self, 20.00, Pose(Point(0, 0, 0.40), Quaternion(0, 0, 0, 1)), Wrench(Vector3(0.0, 0.0, 5.0), Vector3(0.0, 0.0, 0.0)))
+		IRPOS.move_rel_to_cartesian_pose(self, 1.00, Pose(Point(0, 0, -0.004), Quaternion(0, 0, 0, 1)))
+		IRPOS.tfg_to_joint_position(self, 0.063, 3.00)
+		IRPOS.move_rel_to_cartesian_pose(self, 2.00, Pose(Point(0, 0, -0.04), Quaternion(0, 0, 0, 1)))
 	
 	def touch_chessboard(self):
 		print "[CheckersIRPOS] Touch chessboard action"
-		IRPOS.move_rel_to_cartesian_pose_with_contact(self, 30.00, Pose(Point(0, 0, 0.40), Quaternion(0, 0, 0, 1)), Wrench(Vector3(0.0, 0.0, 5.0), Vector3(0.0, 0.0, 0.0)))
-		IRPOS.move_rel_to_cartesian_pose(self, 10.00, Pose(Point(0, 0, -0.1), Quaternion(0, 0, 0, 1)))
+		IRPOS.move_rel_to_cartesian_pose_with_contact(self, 20.00, Pose(Point(0, 0, 0.40), Quaternion(0, 0, 0, 1)), Wrench(Vector3(0.0, 0.0, 5.0), Vector3(0.0, 0.0, 0.0)))
+		IRPOS.move_rel_to_cartesian_pose(self, 2.00, Pose(Point(0, 0, -0.04), Quaternion(0, 0, 0, 1)))
 	
 	def put_checker(self):
 		print "[CheckersIRPOS] Put checker action"
-		IRPOS.move_rel_to_cartesian_pose_with_contact(self, 30.00, Pose(Point(0, 0, 0.40), Quaternion(0, 0, 0, 1)), Wrench(Vector3(0.0, 0.0, 5.0), Vector3(0.0, 0.0, 0.0)))
-		IRPOS.tfg_to_joint_position(self, 0.078, 10.00)
-		IRPOS.move_rel_to_cartesian_pose(self, 10.00, Pose(Point(0, 0, -0.1), Quaternion(0, 0, 0, 1)))
+		IRPOS.move_rel_to_cartesian_pose_with_contact(self, 20.00, Pose(Point(0, 0, 0.40), Quaternion(0, 0, 0, 1)), Wrench(Vector3(0.0, 0.0, 5.0), Vector3(0.0, 0.0, 0.0)))
+		IRPOS.tfg_to_joint_position(self, 0.08, 3.00)
+		IRPOS.move_rel_to_cartesian_pose(self, 2.00, Pose(Point(0, 0, -0.04), Quaternion(0, 0, 0, 1)))
 	
 	def drop_checker(self):
 		print "[CheckersIRPOS] Drop checker action"
-		IRPOS.tfg_to_joint_position(self, 0.078, 10.00)
+		IRPOS.tfg_to_joint_position(self, 0.08, 3.00)
 	
 	def handle_control(self, req):
 		print "[CheckersIRPOS] Control start"
 		for c in req.Controls:
 			print "[CheckersIRPOS] Move horizontal"
-			IRPOS.move_rel_to_cartesian_pose(self, 5.00, Pose(Point(c.X, c.Y, 0), Quaternion(0, 0, 0, 1)))
+			time = math.sqrt(c.X**2 + c.Y**2)*20
+			IRPOS.move_rel_to_cartesian_pose(self, time, Pose(Point(c.X, c.Y, 0), Quaternion(0, 0, 0, 1)))
 			if c.Action == c.GET_CHECKER:
 				self.get_checker()
 			elif c.Action == c.PUT_CHECKER:

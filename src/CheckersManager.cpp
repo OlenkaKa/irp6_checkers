@@ -43,10 +43,10 @@ private:
 
 CheckersManager::CheckersManager(double meter_per_pixel_x, double meter_per_pixel_y) :
 	player_(Checkers::PLAYER_1), ai_(Checkers::PLAYER_2), 
-	meter_per_pixel_x_(0.00038835), meter_per_pixel_y_(0.0004)
+	meter_per_pixel_x_(0.00043), meter_per_pixel_y_(0.000425532)
 {
-	start_image_pos_.x = 605;
-	start_image_pos_.y = 669;
+	start_image_pos_.x = 612;
+	start_image_pos_.y = 656;
 	box_image_pos_.x = 0;
 	box_image_pos_.y = 0;
 	control_client_ = nh_.serviceClient<irp6_checkers::Control>("irp6_control");
@@ -265,7 +265,7 @@ bool CheckersManager::moveRobot(Checkers::Move_Ptr move)
 	}
 	
 	// change to king
-	if(chessboard_.checkEndLine(player_, final_chessboard_pos))
+	if(chessboard_.getFieldValue(start_chessboard_pos) == Checkers::PAWN_2 && chessboard_.checkEndLine(player_, final_chessboard_pos))
 	{
 		// get checker
 		elem.X = -(final_image_pos.y-first_image_pos.y)*meter_per_pixel_y_;
