@@ -39,8 +39,8 @@ CheckersManager::CheckersManager(double meter_per_pixel_x, double meter_per_pixe
 
 void CheckersManager::callback(const irp6_checkers::ImageData& msg)
 {
-	if(msg.WhiteFieldsNum != 32)
-		return;
+	//if(msg.WhiteFieldsNum != 32)
+	//	return;
 	image_data_ = msg;
 }
 
@@ -55,8 +55,6 @@ bool CheckersManager::moveRobot()
 	std::vector<irp6_checkers::ColorPoint>::const_iterator end_it = image_data_.CheckerFields.end();
 	for(std::vector<irp6_checkers::ColorPoint>::const_iterator it = image_data_.CheckerFields.begin(); it != end_it; ++it)
 	{
-		if((*it).color == irp6_checkers::ColorPoint::COLOR_GREEN)
-		{	
 			irp6_checkers::ColorPoint start_image = (*it);
 			//irp6_checkers::Point end_image = checker_points_.getChecker(move->getFinalPos());
 	
@@ -76,7 +74,6 @@ bool CheckersManager::moveRobot()
 			//srv.request.Controls.push_back(elem);
 			
 			break;
-		}
 	}
 	
 	if (control_client_.call(srv))
