@@ -74,10 +74,10 @@ void CheckersManager::createChessboard()
 	std::vector<irp6_checkers::ColorPoint>::const_iterator end_it = image_data_.CheckerFields.end();
 	for(std::vector<irp6_checkers::ColorPoint>::const_iterator it = image_data_.CheckerFields.begin(); it != end_it; ++it)
 	{
-		int checker_x = 0, checker_y = 0;
-		for(int i = image_data_.MinCorner.x+deltaX; i < (*it).x; i += deltaX)
+		int checker_x = -1, checker_y = -1;
+		for(int i = image_data_.MinCorner.x; i < (*it).x; i += deltaX)
 			++checker_x;
-		for(int i = image_data_.MinCorner.y+deltaY; i < (*it).y; i += deltaY)
+		for(int i = image_data_.MinCorner.y; i < (*it).y; i += deltaY)
 			++checker_y;
 		checker_y = 7 - checker_y;	// bo odwrócony obraz
 		
