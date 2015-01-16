@@ -11,7 +11,7 @@ AI::AI(Player player) : _player(player)
 
 Move_Ptr AI::determineMove(const Chessboard& board)
 {
-	static int deep = 4;
+	static int deep = 8;
 
 	std::vector<Move_Ptr> moves;
 	board.findMoves(_player, moves);
@@ -35,14 +35,14 @@ Move_Ptr AI::determineMove(const Chessboard& board)
 		//if(i == 4) continue;
 		board.move(*it, board_after_move);
 		int new_result = _min_max(!_player, board_after_move, deep, INT_MIN, INT_MAX);
-		std::cout<<*it<<'\t'<<new_result<<std::endl;
+		//std::cout<<*it<<'\t'<<new_result<<std::endl;
 		if(max_result < new_result)
 		{
 			max_result = new_result;
 			max_move = *it;
 		}
 	}
-	std::cout<<'\n';
+	//std::cout<<'\n';
 	return max_move;
 	/*
 	static int deep = 6;
@@ -95,9 +95,9 @@ int AI::h(const Chessboard& board)
 	
 	// points for pieces
 	result += player_pawns->size();
-	result += 5*player_kings->size();
+	result += 8*player_kings->size();
 	result -= opponent_pawns->size();
-	result -= 5*opponent_kings->size();
+	result -= 8*opponent_kings->size();
 
 	// points for taking pieces
 	// for player

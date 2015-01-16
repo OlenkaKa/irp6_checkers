@@ -364,15 +364,9 @@ bool Chessboard::legalMove(Player player, const Chessboard& prev, const Chessboa
 
 bool Chessboard::operator==(const Chessboard& board) const
 {
-	if(_player_1 == _player_2)
+	if(_player_1 == board._player_1 && _player_2 == board._player_2)
 		return true;
 	return false;
-	/*
-	if(_player_1.size() != _player_2.size())
-		return false;
-	// TODO
-	return true;
-	*/
 }
 
 void Chessboard::getCheckers(std::vector<Position>& pawns_1, std::vector<Position>& pawns_2, 

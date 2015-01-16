@@ -33,6 +33,7 @@ private:
 	
 	// Control
 	CheckersPoints checker_points_;
+	bool receive_image_data_;
 
 	// Properties
 	irp6_checkers::Point start_image_pos_;
@@ -43,6 +44,7 @@ private:
 
 CheckersManager::CheckersManager(double meter_per_pixel_x, double meter_per_pixel_y) :
 	player_(Checkers::PLAYER_1), ai_(Checkers::PLAYER_2), 
+	receive_image_data_(false),
 	meter_per_pixel_x_(0.00043), meter_per_pixel_y_(0.000425532)
 {
 	start_image_pos_.x = 612;
@@ -51,19 +53,25 @@ CheckersManager::CheckersManager(double meter_per_pixel_x, double meter_per_pixe
 	box_image_pos_.y = 0;
 	control_client_ = nh_.serviceClient<irp6_checkers::Control>("irp6_control");
 	image_data_sub_ = nh_.subscribe("image_data", 1, &CheckersManager::callback, this);
+	prev_chessboard_.initGame();
 	chessboard_.initGame();
 }
 
 void CheckersManager::callback(const irp6_checkers::ImageData& msg)
 {
-	//if(msg.WhiteFieldsNum != 32)
-	//	return;
+	if(msg.WhiteFieldsNum != 32)
+		return;
+	receive_image_data_ = true;
 	image_data_ = msg;
 }
 
 void CheckersManager::createChessboard()
 {
-	prev_chessboard_ = chessboard_;
+	receive_image_data_ = false;
+	while(!receive_image_data_)
+	{
+		ros::spinOnce();
+	}
 	chessboard_.clear();
 	
 	int width = image_data_.MaxCorner.x-image_data_.MinCorner.x;
@@ -97,12 +105,11 @@ void CheckersManager::createChessboard()
 			checker_type = Checkers::KING_1;
 			break;
 		default:
-			cout<<"Invalid checker color.\n";
+			cout<<"Problem z określeniem koloru figury!\n";
 			break;
 		}
 		if(!(checker_x >= 8 || checker_y >= 8 || checker_x < 0 || checker_y < 0))
 		{
-			cout<<"Jestem tu\n";
 			chessboard_.addChecker(Checkers::Position(checker_x,checker_y), checker_type);
 			irp6_checkers::Point point;
 			point.x = (*it).x;
@@ -117,8 +124,8 @@ void CheckersManager::createChessboard()
 			checker_points_.addFreeKing(point);
 		}
 	}
-	cout<<"Chessboard:\n";
-	cout<<chessboard_;
+	//cout<<"Chessboard:\n";
+	//cout<<chessboard_;
 }
 
 
@@ -131,14 +138,8 @@ void CheckersManager::temp()
 	data.Action = irp6_checkers::ControlElem::TOUCH_CHESSBOARD;
 	srv.request.Controls.push_back(data);
 	
-	if (control_client_.call(srv))
-	{
-		ROS_INFO("[CheckersManager] Send message: %d!", srv.response.Status);
-	}
-	else
-	{
-		ROS_ERROR("[CheckersManager] Failed to call service irp6_control");
-	}
+	if (!control_client_.call(srv))
+		ROS_ERROR("Failed to call service irp6_control");
 }
 
 void CheckersManager::play()
@@ -147,30 +148,60 @@ void CheckersManager::play()
 	{
 		if(player_ == Checkers::PLAYER_1)
 		{				
-			cout<<"I'm waiting for your move. Press key when finished.\n";
-			getchar();
-			sleep(2);
-			ros::spinOnce();
-			createChessboard();
-			if(!Checkers::Chessboard::legalMove(player_, prev_chessboard_, chessboard_))
-				cout<<"Incorrect move!\n";
-			else 
-				cout<<"Good move!\n";
+			//cout<<"Twoja kolej. Wciśnij \"Enter\" po zakończeniu ruchu.\n";
+			cout<<"Twoja kolej.\n";
+			//getchar();
+			//sleep(2);
+			while(true)
+			{
+				if(chessboard_ == prev_chessboard_)
+				{
+					createChessboard();
+				}
+				else if(!Checkers::Chessboard::legalMove(player_, prev_chessboard_, chessboard_))
+				{
+					//cout<<"Czekam na poprawny ruch.\n";
+					createChessboard();
+				}
+				else
+					break;
+			}
+			
+			//if(!Checkers::Chessboard::legalMove(player_, prev_chessboard_, chessboard_))
+			//	cout<<"Niepoprawny ruch!\n";
+			//else 
+				cout<<"Ruch poprawny.\n";
+			prev_chessboard_ = chessboard_;
+				
+			if(chessboard_.win(player_))
+			{
+				cout<<"Wygrałeś, gratuluję! Dziękuję za grę!\n";
+				return;
+			}
 		}
+		
 		else	// robot move
 		{
-			/*
-			if(endGame())
-			{
-				cout<<"Congrtulation, you win!!! :)\n";
-				break;
-			}
-			* */
-			ros::spinOnce();
-			createChessboard();
+			cout<<"Moja kolej...\n";
+			cout<<"Sytuacja:\n"<<chessboard_<<endl;
+			
 			Checkers::Move_Ptr move = ai_.determineMove(chessboard_);
-			cout<<"Decision:\n"<<move<<endl;
+			cout<<"Decyzja:\n"<<move<<endl;
 			moveRobot(move);
+			
+			chessboard_.move(move);
+			prev_chessboard_ = chessboard_;
+			
+			if(chessboard_.win(player_))
+			{
+				cout<<"Wygrałem. Dziękuję za grę!\n";
+				return;
+			}
+		}
+		if(chessboard_.draw())
+		{
+			cout<<"Remis. Dziękuję za grę!\n";
+			return;
 		}
 		player_ = !player_;
 	}
@@ -202,10 +233,10 @@ bool CheckersManager::moveRobot(Checkers::Move_Ptr move)
 	elem.X = -(first_image_pos.y - start_image_pos_.y)*meter_per_pixel_y_;
 	elem.Y = (first_image_pos.x - start_image_pos_.x)*meter_per_pixel_x_;
 	elem.Action = irp6_checkers::ControlElem::GET_CHECKER;
-	cout<<"1:\t"<<elem.X<<" "<<elem.Y<<endl;
-	cout<<"Poniewaz:\n";
-	cout<<start_image_pos_.x<<" "<<start_image_pos_.y<<endl;
-	cout<<first_image_pos.x<<" "<<first_image_pos.y<<endl;
+	//cout<<"1:\t"<<elem.X<<" "<<elem.Y<<endl;
+	//cout<<"Poniewaz:\n";
+	//cout<<start_image_pos_.x<<" "<<start_image_pos_.y<<endl;
+	//cout<<first_image_pos.x<<" "<<first_image_pos.y<<endl;
 	srv.request.Controls.push_back(elem);
 	
 	// reaching next positions
@@ -239,22 +270,22 @@ bool CheckersManager::moveRobot(Checkers::Move_Ptr move)
 	final_image_pos.x = first_image_pos.x + (delta_robot_y/meter_per_pixel_x_);
 	final_image_pos.y = first_image_pos.y + (-delta_robot_x/meter_per_pixel_y_);
 	first_image_pos = final_image_pos;
-	cout<<"Current pixel pos:\t"<<first_image_pos.x<<" "<<first_image_pos.y<<endl;
+	//cout<<"Current pixel pos:\t"<<first_image_pos.x<<" "<<first_image_pos.y<<endl;
 	
 	// getting and dropping taking positions
 	end_it = taking_chessboard_pos.end();
 	for(auto it=taking_chessboard_pos.begin(); it!=end_it; ++it)
 	{
 		second_image_pos = checker_points_.getChecker(*it);
-		cout<<"Now pixel pos:\t"<<first_image_pos.x<<" "<<first_image_pos.y<<endl;
-		cout<<"Taking pixel pos:\t"<<second_image_pos.x<<" "<<second_image_pos.y<<endl;
+		//cout<<"Now pixel pos:\t"<<first_image_pos.x<<" "<<first_image_pos.y<<endl;
+		//cout<<"Taking pixel pos:\t"<<second_image_pos.x<<" "<<second_image_pos.y<<endl;
 		//getChecker(first_image_pos, second_image_pos);
 		// get checker
 		elem.X = -(second_image_pos.y-first_image_pos.y)*meter_per_pixel_y_;
 		elem.Y = (second_image_pos.x-first_image_pos.x)*meter_per_pixel_x_;
 		elem.Action = irp6_checkers::ControlElem::GET_CHECKER;
 		srv.request.Controls.push_back(elem);
-		cout<<"Result control:\t"<<elem.X<<" "<<elem.Y<<endl;
+		//cout<<"Result control:\t"<<elem.X<<" "<<elem.Y<<endl;
 		
 		// move and drop
 		elem.X = -(box_image_pos_.y - second_image_pos.y)*meter_per_pixel_y_;
@@ -293,36 +324,9 @@ bool CheckersManager::moveRobot(Checkers::Move_Ptr move)
 		srv.request.Controls.push_back(elem);
 	}
 	
-	if (control_client_.call(srv))
-	{
-		ROS_INFO("[CheckersManager] Send message: %d!", srv.response.Status);
-	}
-	else
-	{
-		ROS_ERROR("[CheckersManager] Failed to call service irp6_control");
-	}
-	srv.request.Controls.clear();
+	if (!control_client_.call(srv))
+		ROS_ERROR("Failed to call service irp6_control");
 	
-	/*
-	// move piece
-	elem.X = (move->getFinalPos().getY() - move->getStartPos().getY())*0.04;
-	elem.Y = (move->getFinalPos().getX() - move->getStartPos().getX())*0.04;
-	elem.Action = irp6_checkers::ControlElem::PUT_CHECKER;
-	cout<<"2:\t"<<elem.X<<" "<<elem.Y<<endl;
-	//cout<<"Poniewaz:\n";
-	//cout<<start_image.x<<" "<<start_image.y<<endl;
-	//cout<<end_image.x<<" "<<end_image.y<<endl;
-	srv.request.Controls.push_back(elem);
-	
-	if (control_client_.call(srv))
-	{
-		ROS_INFO("[CheckersManager] Send message: %d!", srv.response.Status);
-	}
-	else
-	{
-		ROS_ERROR("[CheckersManager] Failed to call service irp6_control");
-	}
-	*/
 	return true;
 }
 
@@ -331,9 +335,10 @@ int main(int argc, char **argv)
 {
 	ros::init(argc, argv, "checkers_manager");
 	CheckersManager manager(2,2);
-	cout<<"Hello, let's play :D!\n";
-	sleep(15);
+	cout<<"*******************\n"
+		<<"Zagrajmy w warcaby!\n"
+		<<"*******************\n";;
+	sleep(12);
 	manager.play();
-	//manager.temp();
 	return 0;
 }
