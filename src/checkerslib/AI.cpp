@@ -22,7 +22,7 @@ Move_Ptr AI::determineMove(const Chessboard& board)
 	Chessboard board_after_move;
 	board.move(max_move, board_after_move);
 	int max_result = _min_max(!_player, board_after_move, deep, INT_MIN, INT_MAX);
-	std::cout<<max_move<<'\t'<<max_result<<std::endl;
+	//std::cout<<max_move<<'\t'<<max_result<<std::endl;
 
 	//std::cout<<"RESULTS\n";
 	//std::cout<<max_move<<'\t'<<max_result<<std::endl;

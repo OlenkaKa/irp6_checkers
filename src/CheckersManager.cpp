@@ -59,8 +59,9 @@ CheckersManager::CheckersManager(double meter_per_pixel_x, double meter_per_pixe
 
 void CheckersManager::callback(const irp6_checkers::ImageData& msg)
 {
-	if(msg.WhiteFieldsNum != 32)
-		return;
+	cout<<"-----> Fields number: "<<msg.WhiteFieldsNum<<endl;
+	//if(msg.WhiteFieldsNum != 32)
+	//	return;
 	receive_image_data_ = true;
 	image_data_ = msg;
 }
@@ -150,17 +151,23 @@ void CheckersManager::play()
 		{				
 			//cout<<"Twoja kolej. Wciśnij \"Enter\" po zakończeniu ruchu.\n";
 			cout<<"Twoja kolej.\n";
+			cout<<prev_chessboard_<<endl;
 			//getchar();
 			//sleep(2);
 			while(true)
 			{
+				cout<<"Czekam na poprawny ruch.\n";
+				cout<<"Wczesniej:\n";
+				cout<<prev_chessboard_<<endl;
+				cout<<"Teraz:\n";
+				cout<<chessboard_<<endl;
+
 				if(chessboard_ == prev_chessboard_)
 				{
 					createChessboard();
 				}
 				else if(!Checkers::Chessboard::legalMove(player_, prev_chessboard_, chessboard_))
 				{
-					//cout<<"Czekam na poprawny ruch.\n";
 					createChessboard();
 				}
 				else
@@ -170,7 +177,6 @@ void CheckersManager::play()
 			//if(!Checkers::Chessboard::legalMove(player_, prev_chessboard_, chessboard_))
 			//	cout<<"Niepoprawny ruch!\n";
 			//else 
-				cout<<"Ruch poprawny.\n";
 			prev_chessboard_ = chessboard_;
 				
 			if(chessboard_.win(player_))
@@ -183,6 +189,7 @@ void CheckersManager::play()
 		else	// robot move
 		{
 			cout<<"Moja kolej...\n";
+			sleep(1);
 			cout<<"Sytuacja:\n"<<chessboard_<<endl;
 			
 			Checkers::Move_Ptr move = ai_.determineMove(chessboard_);
@@ -338,7 +345,7 @@ int main(int argc, char **argv)
 	cout<<"*******************\n"
 		<<"Zagrajmy w warcaby!\n"
 		<<"*******************\n";;
-	sleep(12);
+	sleep(15);
 	manager.play();
 	return 0;
 }

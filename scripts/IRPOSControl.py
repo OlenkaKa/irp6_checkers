@@ -7,6 +7,8 @@ import math
 
 class CheckersIRPOS(IRPOS):
 	
+	half_pi = math.pi/2
+	
 	def __init__(self, nodeName, robotName, robotJointNumbers):
 		IRPOS.__init__(self, nodeName, robotName, robotJointNumbers)
 		
@@ -20,16 +22,15 @@ class CheckersIRPOS(IRPOS):
 	
 	def prepare_to_game(self):
 		print "[CheckersIRPOS] Move to start position"
-		IRPOS.move_to_joint_position(self, [0, -1.4791420483915523, -0.16173032244035423, 0.07007528019972864, 4.712388138719054, -1.5707949127454675], 4.00)
+		IRPOS.move_to_joint_position(self, [0, -self.half_pi, 0, 0, 3*self.half_pi, -self.half_pi], 5.00)
 		IRPOS.move_to_cartesian_pose(self, 2.00, Pose(Point(0.9, 0, 1.30), Quaternion(0, 1, 0, 0)))
-		IRPOS.tfg_to_joint_position(self, 0.08, 3.00)
 	
 	def get_checker(self):
 		print "[CheckersIRPOS] Get checker action"
 		#IRPOS.tfg_to_joint_position(self, 0.078, 10.00)
 		IRPOS.move_rel_to_cartesian_pose_with_contact(self, 20.00, Pose(Point(0, 0, 0.40), Quaternion(0, 0, 0, 1)), Wrench(Vector3(0.0, 0.0, 5.0), Vector3(0.0, 0.0, 0.0)))
 		IRPOS.move_rel_to_cartesian_pose(self, 1.00, Pose(Point(0, 0, -0.004), Quaternion(0, 0, 0, 1)))
-		IRPOS.tfg_to_joint_position(self, 0.063, 3.00)
+		IRPOS.tfg_to_joint_position(self, 0.06, 3.00)
 		IRPOS.move_rel_to_cartesian_pose(self, 2.00, Pose(Point(0, 0, -0.04), Quaternion(0, 0, 0, 1)))
 	
 	def touch_chessboard(self):
@@ -76,5 +77,6 @@ if __name__ == '__main__':
 	irpos = CheckersIRPOS("warcaby", "Irp6p", 6)
 	#irpos.test()
 	irpos.prepare_to_game()
+	irpos.tfg_to_joint_position(0.08, 3.00)
 	irpos.control_server()
 	
