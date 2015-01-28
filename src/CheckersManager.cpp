@@ -45,10 +45,12 @@ private:
 CheckersManager::CheckersManager(double meter_per_pixel_x, double meter_per_pixel_y) :
 	player_(Checkers::PLAYER_1), ai_(Checkers::PLAYER_2), 
 	receive_image_data_(false),
-	meter_per_pixel_x_(0.00043), meter_per_pixel_y_(0.000425532)
+	// zakomentowane byly ok
+	meter_per_pixel_x_(0.00042), meter_per_pixel_y_(0.000421053)
 {
-	start_image_pos_.x = 612;
-	start_image_pos_.y = 656;
+	// zakomentowane byly ok
+	start_image_pos_.x = 640;
+	start_image_pos_.y = 677;
 	box_image_pos_.x = 0;
 	box_image_pos_.y = 0;
 	control_client_ = nh_.serviceClient<irp6_checkers::Control>("irp6_control");
@@ -59,9 +61,9 @@ CheckersManager::CheckersManager(double meter_per_pixel_x, double meter_per_pixe
 
 void CheckersManager::callback(const irp6_checkers::ImageData& msg)
 {
-	cout<<"-----> Fields number: "<<msg.WhiteFieldsNum<<endl;
-	//if(msg.WhiteFieldsNum != 32)
-	//	return;
+	//cout<<"-----> Fields number: "<<msg.WhiteFieldsNum<<endl;
+	if(msg.WhiteFieldsNum > 32)
+		return;
 	receive_image_data_ = true;
 	image_data_ = msg;
 }
