@@ -47,12 +47,14 @@ CheckersManager::CheckersManager(double meter_per_pixel_x, double meter_per_pixe
 	receive_image_data_(false),
 	// zakomentowane byly ok
 	meter_per_pixel_x_(0.00042), meter_per_pixel_y_(0.000421053)
+	///meter_per_pixel_x_(0.000415), meter_per_pixel_y_(0.000425)
 {
 	// zakomentowane byly ok
 	start_image_pos_.x = 640;
 	start_image_pos_.y = 677;
-	box_image_pos_.x = 0;
-	box_image_pos_.y = 0;
+	///start_image_pos_.y = 660;
+	box_image_pos_.x = -30;
+	box_image_pos_.y = 450;
 	control_client_ = nh_.serviceClient<irp6_checkers::Control>("irp6_control");
 	image_data_sub_ = nh_.subscribe("image_data", 1, &CheckersManager::callback, this);
 	prev_chessboard_.initGame();
@@ -152,17 +154,18 @@ void CheckersManager::play()
 		if(player_ == Checkers::PLAYER_1)
 		{				
 			//cout<<"Twoja kolej. Wciśnij \"Enter\" po zakończeniu ruchu.\n";
-			cout<<"Twoja kolej.\n";
+			cout<<"TURA CZŁOWIEKA\n\n";
+			cout<<"Sytuacja:\n";;
 			cout<<prev_chessboard_<<endl;
 			//getchar();
 			//sleep(2);
 			while(true)
 			{
-				cout<<"Czekam na poprawny ruch.\n";
-				cout<<"Wczesniej:\n";
-				cout<<prev_chessboard_<<endl;
-				cout<<"Teraz:\n";
-				cout<<chessboard_<<endl;
+				//cout<<"Czekam na poprawny ruch.\n";
+				//cout<<"Wczesniej:\n";
+				//cout<<prev_chessboard_<<endl;
+				//cout<<"Teraz:\n";
+				//cout<<chessboard_<<endl;
 
 				if(chessboard_ == prev_chessboard_)
 				{
@@ -190,12 +193,21 @@ void CheckersManager::play()
 		
 		else	// robot move
 		{
-			cout<<"Moja kolej...\n";
+			cout<<"TURA ROBOTA\n\n";
 			sleep(1);
 			cout<<"Sytuacja:\n"<<chessboard_<<endl;
 			
+			vector<Checkers::Move_Ptr> m;
+			chessboard_.findMoves(player_, m);
+			int t = 1;
+			cout<<"Możliwe ruchy:\n";
+			for(auto i = m.begin(); i!=m.end(); ++i)
+			{
+				cout<<t<<". "<<(*i)<<endl;
+				++t;
+			}
 			Checkers::Move_Ptr move = ai_.determineMove(chessboard_);
-			cout<<"Decyzja:\n"<<move<<endl;
+			cout<<"Decyzja:\n"<<move<<endl<<endl;
 			moveRobot(move);
 			
 			chessboard_.move(move);
