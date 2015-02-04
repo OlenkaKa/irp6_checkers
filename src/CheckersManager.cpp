@@ -59,6 +59,10 @@ CheckersManager::CheckersManager(double meter_per_pixel_x, double meter_per_pixe
 	image_data_sub_ = nh_.subscribe("image_data", 1, &CheckersManager::callback, this);
 	prev_chessboard_.initGame();
 	chessboard_.initGame();
+	int player = 1;
+	nh_.getParam("start_player", player);
+	if(player == 2)
+		player_ = Checkers::PLAYER_2;
 }
 
 void CheckersManager::callback(const irp6_checkers::ImageData& msg)
@@ -73,10 +77,17 @@ void CheckersManager::callback(const irp6_checkers::ImageData& msg)
 void CheckersManager::createChessboard()
 {
 	receive_image_data_ = false;
-	while(!receive_image_data_)
+	ros::Rate loop_rate(10);
+	while(ros::ok() && !receive_image_data_)
 	{
 		ros::spinOnce();
+		loop_rate.sleep();
 	}
+	// box coordinates
+	box_image_pos_.x = image_data_.MinCorner.x - 300;
+	box_image_pos_.y = (image_data_.MaxCorner.y-image_data_.MinCorner.y)/2;
+	
+	// chessboard info
 	chessboard_.clear();
 	
 	int width = image_data_.MaxCorner.x-image_data_.MinCorner.x;
@@ -149,7 +160,7 @@ void CheckersManager::temp()
 
 void CheckersManager::play()
 {
-	while(true)
+	while(ros::ok())
 	{
 		if(player_ == Checkers::PLAYER_1)
 		{				
@@ -157,9 +168,20 @@ void CheckersManager::play()
 			cout<<"TURA CZŁOWIEKA\n\n";
 			cout<<"Sytuacja:\n";;
 			cout<<prev_chessboard_<<endl;
+			
+			vector<Checkers::Move_Ptr> m;
+			chessboard_.findMoves(player_, m);
+			int t = 1;
+			cout<<"Możliwe ruchy:\n";
+			for(auto i = m.begin(); i!=m.end(); ++i)
+			{
+				cout<<t<<". "<<(*i)<<endl;
+				++t;
+			}
 			//getchar();
 			//sleep(2);
-			while(true)
+			ros::Rate loop_rate(10);
+			while(ros::ok())
 			{
 				//cout<<"Czekam na poprawny ruch.\n";
 				//cout<<"Wczesniej:\n";
@@ -177,6 +199,7 @@ void CheckersManager::play()
 				}
 				else
 					break;
+				loop_rate.sleep();
 			}
 			
 			//if(!Checkers::Chessboard::legalMove(player_, prev_chessboard_, chessboard_))
@@ -194,7 +217,15 @@ void CheckersManager::play()
 		else	// robot move
 		{
 			cout<<"TURA ROBOTA\n\n";
-			sleep(1);
+			sleep(3);
+			ros::Rate loop_rate(10);
+			while(ros::ok())
+			{
+				createChessboard();
+				if(chessboard_ == prev_chessboard_)
+					break;				
+				loop_rate.sleep();
+			}
 			cout<<"Sytuacja:\n"<<chessboard_<<endl;
 			
 			vector<Checkers::Move_Ptr> m;

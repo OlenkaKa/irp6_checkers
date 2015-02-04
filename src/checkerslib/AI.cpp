@@ -74,6 +74,11 @@ Move_Ptr AI::determineMove(const Chessboard& board)
 int AI::h(const Chessboard& board)
 {
 	// TODO
+	if(board.win(_player))
+		return INT_MAX;
+	else if(board.win(!_player))
+		return INT_MIN;
+	
 	int result = 0;
 	std::vector<Position> pawns_1, pawns_2, kings_1, kings_2;
 	board.getCheckers(pawns_1, pawns_2, kings_1, kings_2);
@@ -94,10 +99,10 @@ int AI::h(const Chessboard& board)
 	}
 	
 	// points for pieces
-	result += player_pawns->size();
-	result += 8*player_kings->size();
-	result -= opponent_pawns->size();
-	result -= 8*opponent_kings->size();
+	result += 5*player_pawns->size();
+	result += 50*player_kings->size();
+	result -= 5*opponent_pawns->size();
+	result -= 50*opponent_kings->size();
 
 	// points for taking pieces
 	// for player
@@ -131,11 +136,11 @@ int AI::h(const Chessboard& board)
 			break;
 		case 4:
 		case 5:
-			result += 2;
+			result += 3;
 			break;
 		case 6:
 		case 7:
-			result += 3;
+			result += 20;
 			break;
 		default:
 			break;
@@ -156,11 +161,11 @@ int AI::h(const Chessboard& board)
 			break;
 		case 4:
 		case 5:
-			result -= 2;
+			result -= 3;
 			break;
 		case 6:
 		case 7:
-			result -= 3;
+			result -= 20;
 			break;
 		default:
 			break;

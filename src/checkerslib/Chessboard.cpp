@@ -9,6 +9,11 @@ Chessboard::Chessboard()
 
 void Chessboard::addChecker(const Position& pos, FieldValue val)
 {
+	if(getFieldColor(pos) == WHITE)
+	{
+		//std::cout<<"Checker on white field!\n";
+		return;
+	}
 	if(checkPlayer(val, PLAYER_1))
 		_player_1.insert(std::make_pair(pos,val));
 	else
@@ -355,7 +360,7 @@ bool Chessboard::legalMove(Player player, const Chessboard& prev, const Chessboa
 	for(auto it=moves.begin(); it!=end_it; ++it)
 	{
 		Chessboard after_move;
-		prev.move(*it, after_move);
+		prev.move((*it), after_move);
 		if(after_move == next)
 			return true;
 	}
