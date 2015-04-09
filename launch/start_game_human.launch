@@ -1,4 +1,10 @@
 <launch>
+	<!-- Robot parameters -->
+	<param name="start_player" value="1"/>
+	<param name="start_image_pos_x" value="630"/>
+	<param name="start_image_pos_y" value="675"/>
+	<param name="meter_per_pixel_x" value="0.000415"/>
+	<param name="meter_per_pixel_y" value="0.000405"/>
 	<!-- The node name for the deployer -->
 	<arg name="NAME" default="$(anon discode)"/>
 	<!-- DisCODe log level (0-8) -->

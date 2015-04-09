@@ -10,6 +10,7 @@ class CheckersPoints
 {
 public:
 	CheckersPoints();
+	void clear();
 	void addFreeKing(const irp6_checkers::Point& point);
 	void addChecker(const Checkers::Position& pos, const irp6_checkers::Point& point);
 	irp6_checkers::Point getFreeKing();
@@ -21,6 +22,12 @@ private:
 
 CheckersPoints::CheckersPoints()
 {
+}
+
+void CheckersPoints::clear()
+{
+	checkers_.clear();
+	free_kings_.clear();
 }
 
 void CheckersPoints::addFreeKing(const irp6_checkers::Point& point)

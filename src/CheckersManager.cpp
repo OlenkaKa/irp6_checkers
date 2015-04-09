@@ -44,14 +44,18 @@ private:
 
 CheckersManager::CheckersManager(double meter_per_pixel_x, double meter_per_pixel_y) :
 	player_(Checkers::PLAYER_1), ai_(Checkers::PLAYER_2), 
-	receive_image_data_(false),
+	receive_image_data_(false)
 	// zakomentowane byly ok
-	meter_per_pixel_x_(0.00042), meter_per_pixel_y_(0.000421053)
+	//meter_per_pixel_x_(0.000434783), meter_per_pixel_y_(0.000434783)
 	///meter_per_pixel_x_(0.000415), meter_per_pixel_y_(0.000425)
 {
 	// zakomentowane byly ok
-	start_image_pos_.x = 640;
-	start_image_pos_.y = 677;
+	nh_.getParam("start_image_pos_x", start_image_pos_.x);
+	nh_.getParam("start_image_pos_y", start_image_pos_.y);
+	nh_.getParam("meter_per_pixel_x", meter_per_pixel_x_);
+	nh_.getParam("meter_per_pixel_y", meter_per_pixel_y_);
+	//start_image_pos_.x = 643;
+	//start_image_pos_.y = 682;
 	///start_image_pos_.y = 660;
 	box_image_pos_.x = -30;
 	box_image_pos_.y = 450;
@@ -72,6 +76,8 @@ void CheckersManager::callback(const irp6_checkers::ImageData& msg)
 		return;
 	receive_image_data_ = true;
 	image_data_ = msg;
+	//meter_per_pixel_x_ = 0.32/(image_data_.MaxCorner.x - image_data_.MinCorner.x);
+	//meter_per_pixel_y_ = 0.32/(image_data_.MaxCorner.y - image_data_.MinCorner.y);
 }
 
 void CheckersManager::createChessboard()
@@ -83,12 +89,14 @@ void CheckersManager::createChessboard()
 		ros::spinOnce();
 		loop_rate.sleep();
 	}
+
 	// box coordinates
-	box_image_pos_.x = image_data_.MinCorner.x - 300;
+	box_image_pos_.x = image_data_.MinCorner.x - 400;
 	box_image_pos_.y = (image_data_.MaxCorner.y-image_data_.MinCorner.y)/2;
 	
 	// chessboard info
 	chessboard_.clear();
+	checker_points_.clear();
 	
 	int width = image_data_.MaxCorner.x-image_data_.MinCorner.x;
 	int deltaX = width/8;
@@ -124,6 +132,26 @@ void CheckersManager::createChessboard()
 			cout<<"Problem z określeniem koloru figury!\n";
 			break;
 		}
+		/*
+		cout<<"\n%%%%%%%%%%%%%%%\n";
+		switch(checker_type)
+		{
+		case Checkers::PAWN_1:
+			cout<<"PAWN 1\n";
+			break;
+		case Checkers::PAWN_2:
+			cout<<"PAWN 2\n";
+			break;
+		case Checkers::KING_1:
+			cout<<"KING 1\n";
+			break;
+		case Checkers::KING_2:
+			cout<<"KING 2\n";
+			break;
+		}
+		cout<<checker_x<<endl<<checker_y<<"\n%%%%%%%%%%%%%%%\n";
+		*/
+
 		if(!(checker_x >= 8 || checker_y >= 8 || checker_x < 0 || checker_y < 0))
 		{
 			chessboard_.addChecker(Checkers::Position(checker_x,checker_y), checker_type);
@@ -142,6 +170,9 @@ void CheckersManager::createChessboard()
 	}
 	//cout<<"Chessboard:\n";
 	//cout<<chessboard_;
+	//std::vector<Checkers::Position> a,b,c,d;
+	//chessboard_.getCheckers(a,b,c,d);
+	//cout<<"\n%%%%%%%%%%%%%%%\n"<<a.size()<<endl<<b.size()<<endl<<c.size()<<endl<<d.size()<"\n****************************\n";
 }
 
 
@@ -169,15 +200,15 @@ void CheckersManager::play()
 			cout<<"Sytuacja:\n";;
 			cout<<prev_chessboard_<<endl;
 			
-			vector<Checkers::Move_Ptr> m;
-			chessboard_.findMoves(player_, m);
-			int t = 1;
-			cout<<"Możliwe ruchy:\n";
-			for(auto i = m.begin(); i!=m.end(); ++i)
-			{
-				cout<<t<<". "<<(*i)<<endl;
-				++t;
-			}
+			//vector<Checkers::Move_Ptr> m;
+			//chessboard_.findMoves(player_, m);
+			//int t = 1;
+			//cout<<"Możliwe ruchy:\n";
+			//for(auto i = m.begin(); i!=m.end(); ++i)
+			//{
+			//	cout<<t<<". "<<(*i)<<endl;
+			//	++t;
+			//}
 			//getchar();
 			//sleep(2);
 			ros::Rate loop_rate(10);
@@ -189,11 +220,11 @@ void CheckersManager::play()
 				//cout<<"Teraz:\n";
 				//cout<<chessboard_<<endl;
 
-				if(chessboard_ == prev_chessboard_)
+				/*if(chessboard_ == prev_chessboard_)
 				{
 					createChessboard();
 				}
-				else if(!Checkers::Chessboard::legalMove(player_, prev_chessboard_, chessboard_))
+				else */if(!Checkers::Chessboard::legalMove(player_, prev_chessboard_, chessboard_))
 				{
 					createChessboard();
 				}
@@ -204,7 +235,8 @@ void CheckersManager::play()
 			
 			//if(!Checkers::Chessboard::legalMove(player_, prev_chessboard_, chessboard_))
 			//	cout<<"Niepoprawny ruch!\n";
-			//else 
+			//else
+			prev_chessboard_.clear();
 			prev_chessboard_ = chessboard_;
 				
 			if(chessboard_.win(player_))
@@ -242,6 +274,7 @@ void CheckersManager::play()
 			moveRobot(move);
 			
 			chessboard_.move(move);
+			prev_chessboard_.clear();
 			prev_chessboard_ = chessboard_;
 			
 			if(chessboard_.win(player_))

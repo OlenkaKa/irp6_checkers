@@ -10,7 +10,7 @@ class CheckersIRPOS(IRPOS):
 	half_pi = math.pi/2
 	
 	def __init__(self, nodeName, robotName, robotJointNumbers):
-		IRPOS.__init__(self, nodeName, robotName, robotJointNumbers)
+		IRPOS.__init__(self, nodeName, robotName, robotJointNumbers, "irp6p_manager")
 		
 	def test(self):
 		self.prepare_to_game()
@@ -22,28 +22,29 @@ class CheckersIRPOS(IRPOS):
 	
 	def prepare_to_game(self):
 		print "[CheckersIRPOS] Move to start position"
-		IRPOS.move_to_joint_position(self, [0, -self.half_pi, 0, 0, 3*self.half_pi, -self.half_pi], 5.00)
-		IRPOS.move_to_cartesian_pose(self, 2.00, Pose(Point(0.9, 0, 1.30), Quaternion(0, 1, 0, 0)))
+		IRPOS.move_to_joint_position(self, [0, -self.half_pi, 0, 0, 3*self.half_pi, -self.half_pi], 4.00)
+		IRPOS.move_to_cartesian_pose(self, 1.70, Pose(Point(0.9, 0, 1.30), Quaternion(0, 1, 0, 0)))
 	
 	def get_checker(self,height):
 		print "[CheckersIRPOS] Get checker action"
 		#IRPOS.tfg_to_joint_position(self, 0.078, 10.00)
-		IRPOS.move_rel_to_cartesian_pose_with_contact(self, 20.00, Pose(Point(0, 0, 0.40), Quaternion(0, 0, 0, 1)), Wrench(Vector3(0.0, 0.0, 5.0), Vector3(0.0, 0.0, 0.0)))
+		IRPOS.move_rel_to_cartesian_pose_with_contact(self, 10.00, Pose(Point(0, 0, 0.40), Quaternion(0, 0, 0, 1)), Wrench(Vector3(0.0, 0.0, 5.0), Vector3(0.0, 0.0, 0.0)))
 		IRPOS.move_rel_to_cartesian_pose(self, 1.00, Pose(Point(0, 0, -0.004), Quaternion(0, 0, 0, 1)))
 		IRPOS.tfg_to_joint_position(self, 0.06, 3.00)
 		#IRPOS.move_rel_to_cartesian_pose(self, 2.00, Pose(Point(0, 0, -0.04), Quaternion(0, 0, 0, 1)))
-		IRPOS.move_rel_to_cartesian_pose(self, 2.00, Pose(Point(0, 0, height), Quaternion(0, 0, 0, 1)))
+		IRPOS.move_rel_to_cartesian_pose(self, float(-20*height), Pose(Point(0, 0, height), Quaternion(0, 0, 0, 1)))
 	
 	def touch_chessboard(self):
 		print "[CheckersIRPOS] Touch chessboard action"
-		IRPOS.move_rel_to_cartesian_pose_with_contact(self, 20.00, Pose(Point(0, 0, 0.40), Quaternion(0, 0, 0, 1)), Wrench(Vector3(0.0, 0.0, 5.0), Vector3(0.0, 0.0, 0.0)))
-		IRPOS.move_rel_to_cartesian_pose(self, 2.00, Pose(Point(0, 0, -0.04), Quaternion(0, 0, 0, 1)))
+		IRPOS.move_rel_to_cartesian_pose_with_contact(self, 10.00, Pose(Point(0, 0, 0.40), Quaternion(0, 0, 0, 1)), Wrench(Vector3(0.0, 0.0, 5.0), Vector3(0.0, 0.0, 0.0)))
+		IRPOS.move_rel_to_cartesian_pose(self, 0.8, Pose(Point(0, 0, -0.04), Quaternion(0, 0, 0, 1)))
 	
 	def put_checker(self):
 		print "[CheckersIRPOS] Put checker action"
-		IRPOS.move_rel_to_cartesian_pose_with_contact(self, 20.00, Pose(Point(0, 0, 0.40), Quaternion(0, 0, 0, 1)), Wrench(Vector3(0.0, 0.0, 5.0), Vector3(0.0, 0.0, 0.0)))
+		IRPOS.move_rel_to_cartesian_pose_with_contact(self, 10.00, Pose(Point(0, 0, 0.40), Quaternion(0, 0, 0, 1)), Wrench(Vector3(0.0, 0.0, 5.0), Vector3(0.0, 0.0, 0.0)))
+		IRPOS.move_rel_to_cartesian_pose(self, 0.50, Pose(Point(0, 0, -0.0005), Quaternion(0, 0, 0, 1)))
 		IRPOS.tfg_to_joint_position(self, 0.08, 3.00)
-		IRPOS.move_rel_to_cartesian_pose(self, 2.00, Pose(Point(0, 0, -0.04), Quaternion(0, 0, 0, 1)))
+		IRPOS.move_rel_to_cartesian_pose(self, 0.8, Pose(Point(0, 0, -0.04), Quaternion(0, 0, 0, 1)))
 	
 	def drop_checker(self):
 		print "[CheckersIRPOS] Drop checker action"
