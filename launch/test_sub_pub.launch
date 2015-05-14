@@ -1,7 +1,0 @@
-<launch>
-	
-	<node name="test_pub" pkg="irp6_checkers" type="test_pub" launch-prefix="xterm -e"/>
-
-	<node name="test_sub" pkg="irp6_checkers" type="test_sub" launch-prefix="xterm -e"/>
-	
-</launch>

@@ -38,7 +38,6 @@ protected:
 	virtual std::ostream& _ostream(std::ostream &os) const = 0;
 };
 
-//typedef std::tr1::shared_ptr<Move> Move_Ptr;
 typedef boost::shared_ptr<Move> Move_Ptr;
 std::ostream& operator<<(std::ostream &os, const Move_Ptr& move);
 

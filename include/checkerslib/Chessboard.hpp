@@ -32,103 +32,12 @@ public:
 	bool checkEndLine(Player player, const Position& pos) const;
 	bool win(Player player) const;
 	bool win() const;
-	//bool draw(Player player) const;
 	bool draw() const;
 	static bool legalMove(Player player, const Chessboard& prev, const Chessboard& next);
 	bool operator==(const Chessboard& board) const;
 	void getCheckers(std::vector<Position>& pawns_1, std::vector<Position>& pawns_2, 
 		std::vector<Position>& kings_1, std::vector<Position>& kings_2) const;
 	friend std::ostream& operator<<(std::ostream &os, const Chessboard& board);
-
-	// TODO: remove
-	/*
-	void prepareExample()
-	{	
-		_player_1.insert(std::make_pair(Position(0,0),PAWN_1));
-		_player_1.insert(std::make_pair(Position(7,1),KING_1));
-		_player_2.insert(std::make_pair(Position(1,1),PAWN_2));
-		_player_2.insert(std::make_pair(Position(3,1),PAWN_2));
-		_player_2.insert(std::make_pair(Position(3,3),PAWN_2));
-		_player_2.insert(std::make_pair(Position(3,5),PAWN_2));
-		_player_2.insert(std::make_pair(Position(5,3),PAWN_2));
-	}
-	void prepareExample2()
-	{
-		_player_1.insert(std::make_pair(Position(1,1),PAWN_1));
-		_player_1.insert(std::make_pair(Position(2,0),PAWN_1));
-		_player_1.insert(std::make_pair(Position(2,2),PAWN_1));
-
-		_player_2.insert(std::make_pair(Position(0,2),PAWN_2));
-		_player_2.insert(std::make_pair(Position(1,7),PAWN_2));
-		_player_2.insert(std::make_pair(Position(2,6),PAWN_2));
-		_player_2.insert(std::make_pair(Position(3,7),PAWN_2));
-		_player_2.insert(std::make_pair(Position(5,7),PAWN_2));
-		_player_2.insert(std::make_pair(Position(6,6),PAWN_2));
-		_player_2.insert(std::make_pair(Position(7,7),PAWN_2));
-
-		_player_2.insert(std::make_pair(Position(6,0),KING_2));
-	}
-	void prepareExample3()
-	{
-		_player_1.insert(std::make_pair(Position(0,0),PAWN_1));
-		_player_1.insert(std::make_pair(Position(2,0),PAWN_1));
-		_player_1.insert(std::make_pair(Position(4,0),PAWN_1));
-		_player_1.insert(std::make_pair(Position(7,1),PAWN_1));
-		_player_1.insert(std::make_pair(Position(0,2),PAWN_1));
-		_player_1.insert(std::make_pair(Position(3,3),PAWN_1));
-		_player_1.insert(std::make_pair(Position(5,3),PAWN_1));
-		_player_1.insert(std::make_pair(Position(7,3),PAWN_1));
-		_player_1.insert(std::make_pair(Position(0,4),PAWN_1));
-
-		_player_2.insert(std::make_pair(Position(1,7),PAWN_2));
-		_player_2.insert(std::make_pair(Position(3,7),PAWN_2));
-		_player_2.insert(std::make_pair(Position(5,7),PAWN_2));
-		_player_2.insert(std::make_pair(Position(7,7),PAWN_2));
-		_player_2.insert(std::make_pair(Position(0,6),PAWN_2));	
-		_player_2.insert(std::make_pair(Position(2,6),PAWN_2));
-		_player_2.insert(std::make_pair(Position(6,6),PAWN_2));
-
-	}
-	void prepareExample4()
-	{
-		_player_1.insert(std::make_pair(Position(4,6),PAWN_1));
-
-		_player_2.insert(std::make_pair(Position(3,5),PAWN_2));
-
-	}
-	*/
-
-	void prepareExample5()
-	{
-		_player_1.insert(std::make_pair(Position(2,0),PAWN_1));
-		_player_1.insert(std::make_pair(Position(4,0),PAWN_1));
-		_player_1.insert(std::make_pair(Position(6,0),PAWN_1));
-		_player_1.insert(std::make_pair(Position(3,1),PAWN_1));
-		_player_1.insert(std::make_pair(Position(5,1),PAWN_1));
-		_player_1.insert(std::make_pair(Position(5,3),PAWN_1));
-		_player_1.insert(std::make_pair(Position(2,4),PAWN_1));
-		_player_1.insert(std::make_pair(Position(7,5),PAWN_1));
-
-		_player_2.insert(std::make_pair(Position(1,7),PAWN_2));
-		_player_2.insert(std::make_pair(Position(3,7),PAWN_2));
-		_player_2.insert(std::make_pair(Position(5,7),PAWN_2));
-		_player_2.insert(std::make_pair(Position(7,7),PAWN_2));
-		_player_2.insert(std::make_pair(Position(0,6),PAWN_2));
-		_player_2.insert(std::make_pair(Position(6,6),PAWN_2));
-		_player_2.insert(std::make_pair(Position(0,0),KING_2));
-
-	}
-
-	void prepareExample6()
-	{
-		_player_1.insert(std::make_pair(Position(2,2),PAWN_1));
-		_player_1.insert(std::make_pair(Position(6,4),PAWN_1));
-		_player_1.insert(std::make_pair(Position(5,1),PAWN_1));
-
-		_player_2.insert(std::make_pair(Position(0,0),KING_2));
-
-	}
-
 
 private:
 

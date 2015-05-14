@@ -45,18 +45,11 @@ private:
 CheckersManager::CheckersManager(double meter_per_pixel_x, double meter_per_pixel_y) :
 	player_(Checkers::PLAYER_1), ai_(Checkers::PLAYER_2), 
 	receive_image_data_(false)
-	// zakomentowane byly ok
-	//meter_per_pixel_x_(0.000434783), meter_per_pixel_y_(0.000434783)
-	///meter_per_pixel_x_(0.000415), meter_per_pixel_y_(0.000425)
 {
-	// zakomentowane byly ok
 	nh_.getParam("start_image_pos_x", start_image_pos_.x);
 	nh_.getParam("start_image_pos_y", start_image_pos_.y);
 	nh_.getParam("meter_per_pixel_x", meter_per_pixel_x_);
 	nh_.getParam("meter_per_pixel_y", meter_per_pixel_y_);
-	//start_image_pos_.x = 643;
-	//start_image_pos_.y = 682;
-	///start_image_pos_.y = 660;
 	box_image_pos_.x = -30;
 	box_image_pos_.y = 450;
 	control_client_ = nh_.serviceClient<irp6_checkers::Control>("irp6_control");
@@ -71,13 +64,10 @@ CheckersManager::CheckersManager(double meter_per_pixel_x, double meter_per_pixe
 
 void CheckersManager::callback(const irp6_checkers::ImageData& msg)
 {
-	//cout<<"-----> Fields number: "<<msg.WhiteFieldsNum<<endl;
 	if(msg.WhiteFieldsNum > 32)
 		return;
 	receive_image_data_ = true;
 	image_data_ = msg;
-	//meter_per_pixel_x_ = 0.32/(image_data_.MaxCorner.x - image_data_.MinCorner.x);
-	//meter_per_pixel_y_ = 0.32/(image_data_.MaxCorner.y - image_data_.MinCorner.y);
 }
 
 void CheckersManager::createChessboard()
@@ -132,25 +122,6 @@ void CheckersManager::createChessboard()
 			cout<<"Problem z określeniem koloru figury!\n";
 			break;
 		}
-		/*
-		cout<<"\n%%%%%%%%%%%%%%%\n";
-		switch(checker_type)
-		{
-		case Checkers::PAWN_1:
-			cout<<"PAWN 1\n";
-			break;
-		case Checkers::PAWN_2:
-			cout<<"PAWN 2\n";
-			break;
-		case Checkers::KING_1:
-			cout<<"KING 1\n";
-			break;
-		case Checkers::KING_2:
-			cout<<"KING 2\n";
-			break;
-		}
-		cout<<checker_x<<endl<<checker_y<<"\n%%%%%%%%%%%%%%%\n";
-		*/
 
 		if(!(checker_x >= 8 || checker_y >= 8 || checker_x < 0 || checker_y < 0))
 		{
@@ -168,11 +139,6 @@ void CheckersManager::createChessboard()
 			checker_points_.addFreeKing(point);
 		}
 	}
-	//cout<<"Chessboard:\n";
-	//cout<<chessboard_;
-	//std::vector<Checkers::Position> a,b,c,d;
-	//chessboard_.getCheckers(a,b,c,d);
-	//cout<<"\n%%%%%%%%%%%%%%%\n"<<a.size()<<endl<<b.size()<<endl<<c.size()<<endl<<d.size()<"\n****************************\n";
 }
 
 
@@ -195,36 +161,14 @@ void CheckersManager::play()
 	{
 		if(player_ == Checkers::PLAYER_1)
 		{				
-			//cout<<"Twoja kolej. Wciśnij \"Enter\" po zakończeniu ruchu.\n";
 			cout<<"TURA CZŁOWIEKA\n\n";
 			cout<<"Sytuacja:\n";;
 			cout<<prev_chessboard_<<endl;
-			
-			//vector<Checkers::Move_Ptr> m;
-			//chessboard_.findMoves(player_, m);
-			//int t = 1;
-			//cout<<"Możliwe ruchy:\n";
-			//for(auto i = m.begin(); i!=m.end(); ++i)
-			//{
-			//	cout<<t<<". "<<(*i)<<endl;
-			//	++t;
-			//}
-			//getchar();
-			//sleep(2);
+
 			ros::Rate loop_rate(10);
 			while(ros::ok())
 			{
-				//cout<<"Czekam na poprawny ruch.\n";
-				//cout<<"Wczesniej:\n";
-				//cout<<prev_chessboard_<<endl;
-				//cout<<"Teraz:\n";
-				//cout<<chessboard_<<endl;
-
-				/*if(chessboard_ == prev_chessboard_)
-				{
-					createChessboard();
-				}
-				else */if(!Checkers::Chessboard::legalMove(player_, prev_chessboard_, chessboard_))
+				if(!Checkers::Chessboard::legalMove(player_, prev_chessboard_, chessboard_))
 				{
 					createChessboard();
 				}
@@ -233,9 +177,6 @@ void CheckersManager::play()
 				loop_rate.sleep();
 			}
 			
-			//if(!Checkers::Chessboard::legalMove(player_, prev_chessboard_, chessboard_))
-			//	cout<<"Niepoprawny ruch!\n";
-			//else
 			prev_chessboard_.clear();
 			prev_chessboard_ = chessboard_;
 				
@@ -318,10 +259,7 @@ bool CheckersManager::moveRobot(Checkers::Move_Ptr move)
 	elem.X = -(first_image_pos.y - start_image_pos_.y)*meter_per_pixel_y_;
 	elem.Y = (first_image_pos.x - start_image_pos_.x)*meter_per_pixel_x_;
 	elem.Action = irp6_checkers::ControlElem::GET_CHECKER;
-	//cout<<"1:\t"<<elem.X<<" "<<elem.Y<<endl;
-	//cout<<"Poniewaz:\n";
-	//cout<<start_image_pos_.x<<" "<<start_image_pos_.y<<endl;
-	//cout<<first_image_pos.x<<" "<<first_image_pos.y<<endl;
+
 	srv.request.Controls.push_back(elem);
 	
 	// reaching next positions
@@ -355,22 +293,17 @@ bool CheckersManager::moveRobot(Checkers::Move_Ptr move)
 	final_image_pos.x = first_image_pos.x + (delta_robot_y/meter_per_pixel_x_);
 	final_image_pos.y = first_image_pos.y + (-delta_robot_x/meter_per_pixel_y_);
 	first_image_pos = final_image_pos;
-	//cout<<"Current pixel pos:\t"<<first_image_pos.x<<" "<<first_image_pos.y<<endl;
 	
 	// getting and dropping taking positions
 	end_it = taking_chessboard_pos.end();
 	for(auto it=taking_chessboard_pos.begin(); it!=end_it; ++it)
 	{
 		second_image_pos = checker_points_.getChecker(*it);
-		//cout<<"Now pixel pos:\t"<<first_image_pos.x<<" "<<first_image_pos.y<<endl;
-		//cout<<"Taking pixel pos:\t"<<second_image_pos.x<<" "<<second_image_pos.y<<endl;
-		//getChecker(first_image_pos, second_image_pos);
 		// get checker
 		elem.X = -(second_image_pos.y-first_image_pos.y)*meter_per_pixel_y_;
 		elem.Y = (second_image_pos.x-first_image_pos.x)*meter_per_pixel_x_;
 		elem.Action = irp6_checkers::ControlElem::GET_CHECKER;
 		srv.request.Controls.push_back(elem);
-		//cout<<"Result control:\t"<<elem.X<<" "<<elem.Y<<endl;
 		
 		// move and drop
 		elem.X = -(box_image_pos_.y - second_image_pos.y)*meter_per_pixel_y_;

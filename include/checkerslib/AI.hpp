@@ -8,8 +8,6 @@ namespace Checkers {
 class AI
 {
 public:
-
-	//const int INFINITY = 100000;
 	
 	AI(Player player);
 	Move_Ptr determineMove(const Chessboard& board);
